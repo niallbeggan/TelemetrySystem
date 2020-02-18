@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QObject>
-#include <QQuickItem>
+//#include <QQuickItem>
 #include <QWidget>
 #include <QThread>
 #include <QTimer>

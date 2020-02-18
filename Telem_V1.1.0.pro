@@ -1,4 +1,4 @@
-QT       += core gui \
+QT       += core gui xml printsupport
     quick
 QT       += serialport
 
@@ -20,10 +20,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
+    qcustomplot.cpp \
     serialportthread.cpp
 
 HEADERS += \
     mainwindow.h \
+    qcustomplot.h \
     serialportthread.h
 
 FORMS += \

@@ -20,6 +20,10 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    //Graph
+    void addPoint(double x, double y);
+    void clearData();
+    void plot();
 
 private slots:
     void scanSerialPorts();
@@ -29,9 +33,11 @@ private slots:
     void updateTextEdit(QString msg);
     void on_endComms_clicked();
     void clearComboBox();
+    void on_clearPlot_clicked();
 
 private:
     Ui::MainWindow *ui;
+    QVector <double> qv_x, qv_y;
 signals:
     void startComms();
     void updateFromComboBox(QString PortDescriptionAndNumber);
