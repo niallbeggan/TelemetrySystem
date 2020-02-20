@@ -23,6 +23,7 @@ private slots:
     void selectPortFromComboBoxClick(QString PortDescriptionAndNumber);
     void startComms();
     void endCommsFromGUI();
+    void telemRequestDataTimer();
 private:
     int closeComms(QSerialPort* &port);
     QSerialPort *TelemSerialPort;
@@ -32,6 +33,7 @@ signals:
     void sendDataToGUI(QString msg);
     void clearComboBox();
     void scanSerialPorts();
+    void startTelem();
 };
 
 #endif // SERIALPORTTHREAD_H

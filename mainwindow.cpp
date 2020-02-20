@@ -19,6 +19,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->plot->addGraph();
     ui->plot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
     ui->plot->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    ui->plot2->addGraph();
+    ui->plot2->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->plot2->graph(0)->setLineStyle(QCPGraph::lsLine);
 }
 MainWindow::~MainWindow() {
     delete ui;
@@ -27,6 +31,11 @@ MainWindow::~MainWindow() {
 void MainWindow::addPoint(double x, double y) {
     qv_x.append(x);
     qv_y.append(y);
+}
+
+void MainWindow::addPoint2Graph(double x, double y) {
+    qv_x2.append(x);
+    qv_y2.append(y);
 }
 
 void MainWindow::clearData() {
@@ -46,6 +55,20 @@ void MainWindow::plot() {
     ui->plot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
     ui->plot->yAxis->setRange(1,1030);
     ui->plot->update();
+}
+
+void MainWindow::plotGraph2() {
+    ui->plot2->graph(0)->setData(qv_x2, qv_y2);
+    ui->plot2->replot();
+    double startOfXAxis = 0;
+    if(qv_x2.length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = qv_x2[qv_x2.length()-1];
+    ui->plot2->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->plot2->yAxis->setRange(1,1030);
+    ui->plot2->update();
 }
 
 void MainWindow::scanSerialPorts() {
@@ -70,10 +93,18 @@ void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescription
 void MainWindow::updateTextEdit(QString msg) {
     QApplication::processEvents();
     ui->textEdit_2->append(msg);
-    double y = msg.toDouble();
-    addPoint(qv_x.length()+1,y);
-    qDebug() << "Plotting this value" << qv_x.length()+1 << y;
-    plot();
+    if(msg != "") {
+        QStringList sensors = msg.split(",");
+        qDebug() << sensors;
+        double LeftBackSuspensionDisplacement13 = sensors[12].toDouble();
+        double RightBackSuspensionDisplacement14 = sensors[13].toDouble();//add in other graph
+        addPoint(qv_x.length()+1,LeftBackSuspensionDisplacement13);
+        addPoint2Graph(qv_x2.length()+1,RightBackSuspensionDisplacement14);
+        qDebug() << "Plotting this value" << qv_x.length()+1 << LeftBackSuspensionDisplacement13;
+        plot();
+        qDebug() << "Plotting this value" << qv_x2.length()+1 << RightBackSuspensionDisplacement14;
+        plotGraph2();
+    }
 }
 
 void MainWindow::on_endComms_clicked() {
@@ -89,18 +120,3 @@ void MainWindow::on_clearPlot_clicked() {
     clearData();
     plot();
 }
-
-/* Arduino code for this.
- * void setup() {
-  // start serial port at 9600 bps:
-  Serial.begin(9600);
-}
-int x=0;
-void loop() {
-  x=x+1;
-  Serial.write("Hello");
-  Serial.print(x,DEC);
-  Serial.write("\n");
-  delay(50);
-}
-*/

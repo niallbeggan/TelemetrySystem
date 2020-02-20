@@ -22,8 +22,10 @@ public:
     ~MainWindow();
     //Graph
     void addPoint(double x, double y);
+    void addPoint2Graph(double x, double y);
     void clearData();
     void plot();
+    void plotGraph2();
 
 private slots:
     void scanSerialPorts();
@@ -38,6 +40,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QVector <double> qv_x, qv_y;
+    QVector <double> qv_x2, qv_y2;
 signals:
     void startComms();
     void updateFromComboBox(QString PortDescriptionAndNumber);
