@@ -7,7 +7,11 @@
 #include <QWidget>
 #include <QThread>
 #include <QTimer>
+#include <QElapsedTimer>
 #include <mainwindow.h>
+#include <QFile>
+#include <QMutex>
+#include <QMutexLocker>
 
 class SerialPortThread : public QThread
 {
@@ -24,24 +28,21 @@ private slots:
     void startComms();
     void endCommsFromGUI();
     void telemRequestDataTimer();
+
 private:
     int closeComms(QSerialPort* &port);
     QSerialPort *TelemSerialPort;
     QString portNumber;
-
+    QTimer * requestTimer;
+    QString filename = "Data.txt";
+    QMutex serialMutex;
 signals:
     void sendDataToGUI(QString msg);
     void clearComboBox();
     void scanSerialPorts();
     void startTelem();
+    void showStartComms();
+    void showEndComms();
 };
 
 #endif // SERIALPORTTHREAD_H
-
-//void MyObject::startWorkInAThread()
-//{
-//    WorkerThread *workerThread = new WorkerThread(this);
-//    connect(workerThread, &WorkerThread::resultReady, this, &MyObject::handleResults);
-//    connect(workerThread, &WorkerThread::finished, workerThread, &QObject::deleteLater);
-//    workerThread->start();
-//}

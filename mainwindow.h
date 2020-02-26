@@ -35,7 +35,10 @@ private slots:
     void updateTextEdit(QString msg);
     void on_endComms_clicked();
     void clearComboBox();
-    void on_clearPlot_clicked();
+//    void on_clearPlot_clicked(); for a clear pot button i removed
+    void on_pushButton_clicked();
+    void showStartComms();
+    void showEndComms();
 
 private:
     Ui::MainWindow *ui;

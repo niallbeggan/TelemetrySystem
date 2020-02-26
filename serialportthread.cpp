@@ -1,13 +1,19 @@
 #include "serialportthread.h"
 
+#define REQUEST_TIME 90
+
 SerialPortThread::SerialPortThread() {
     portNumber = ""; //Initiliase variables
     TelemSerialPort = NULL;
     connect(this, SIGNAL(startTelem()), this, SLOT(telemRequestDataTimer()));
+    filename = "SuspensionData.txt";
+    requestTimer = new QTimer(this);
+    connect(requestTimer, SIGNAL(timeout()), SLOT(sendDataToGUISlot()));
 }
 
 SerialPortThread::~SerialPortThread() {
     closeComms(TelemSerialPort);
+    delete requestTimer;
 }
 
 void SerialPortThread::startComms() {
@@ -29,14 +35,15 @@ void SerialPortThread::startComms() {
             qDebug() << __FILE__ << __LINE__ << "Creating new TelemSerialPort";
         }
         if(TelemSerialPort->isOpen() != true) {
-            qDebug() << __FILE__ << __LINE__ << "Opening port";
+            qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "Opening port";
             TelemSerialPort->setPortName(portNumber);
             TelemSerialPort->setParity(QSerialPort::NoParity);
-            TelemSerialPort->setBaudRate(QSerialPort::Baud9600, QSerialPort::AllDirections);
+            TelemSerialPort->setBaudRate(QSerialPort::Baud57600, QSerialPort::AllDirections);
             TelemSerialPort->setStopBits(QSerialPort::OneStop);
             TelemSerialPort->setFlowControl(QSerialPort::NoFlowControl);
             TelemSerialPort->open(QIODevice::ReadWrite);
             emit startTelem();
+            emit showEndComms();
         }
     }
     else {
@@ -89,6 +96,10 @@ void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
 }
 
 int SerialPortThread::closeComms(QSerialPort* &port) {
+    if(requestTimer) {
+        if(requestTimer->isActive() == true)
+            requestTimer->stop();//ends requests
+    }
     if((port != NULL) && (portNumber != "")) {
         if(port->isOpen())
             qDebug() << __FILE__ << __LINE__ << "Port is open";
@@ -100,33 +111,62 @@ int SerialPortThread::closeComms(QSerialPort* &port) {
         delete port;
         port = NULL;
         portNumber = ""; //delete the portnumber
-        qDebug() << __FILE__ << __LINE__ << "Serial port is closed and deleted!";
+        qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "Serial port is closed and deleted!";
         emit clearComboBox();
+        emit showStartComms();
         return 0;
     }
-    qDebug() << __FILE__ << __LINE__ << "Serial port was already closed and deleted!";
+    portNumber = ""; //without this portnumber can be assigned even with a cleared combo box
+    qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "Serial port was already closed and deleted!";
     emit clearComboBox();
+    emit showStartComms();
     return 0;
 }
 
 void SerialPortThread::sendDataToGUISlot() {
     QString msg = "";
+    QStringList sensors;
     if(TelemSerialPort != NULL) {
         if(TelemSerialPort->isOpen()) {
             TelemSerialPort->write("1");
-            msleep(35);
             QByteArray datas;
+            msleep(20);
+            QElapsedTimer * timeout = new QElapsedTimer;
+            timeout->start();
             datas = TelemSerialPort->readLine();//need to emit an empty signal here if dont get full msg
-            for (int i = 0; i < datas.size(); i++){
-                if (datas.at(i)) {
+//            while(datas.isEmpty() && timeout->elapsed()<100) {
+//                datas = TelemSerialPort->readLine();
+//                qDebug() << "Waiting!";
+//                qDebug() << datas;
+//            }
+//            while(datas.size() < 14 && timeout->elapsed()<100) {
+//                qDebug() << datas;
+//                datas += TelemSerialPort->readLine();
+//            }
+//            if(datas.isEmpty())
+//                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
+//            else {
+                for (int i = 0; i < datas.size(); i++)
                     msg += datas[i];
-                }
-            }
-            QStringList sensors = msg.split(",");
+//            }
+            qDebug() << msg;
+            sensors = msg.split(",");
             if(sensors.length() > 14) //Full msg received
                 emit sendDataToGUI(msg);
-        } else {
-            qDebug() << __FILE__ << __LINE__ << "OPEN ERROR: " << TelemSerialPort->errorString();
+            else {
+                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
+                sensors = msg.split(",");
+                emit sendDataToGUI(msg);
+            }
+            QFile file(filename);
+            if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+                  QTextStream stream(&file);
+                  stream << sensors[12] << "," << sensors[13] << "\n";
+                  file.close();
+            }
+        }
+        else {
+            qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "OPEN ERROR: " << TelemSerialPort->errorString();
         }
     }
 }
@@ -148,8 +188,6 @@ void SerialPortThread::endCommsFromGUI(){
 }
 
 void SerialPortThread::telemRequestDataTimer() {
-    QTimer *timer = new QTimer(this);
-    connect(timer, SIGNAL(timeout()), SLOT(sendDataToGUISlot()));
-    timer->start(50);
+    requestTimer->start(90);
     qDebug() << "Starting timer";
 }

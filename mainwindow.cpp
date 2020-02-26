@@ -14,6 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
     connect(thread, SIGNAL(sendDataToGUI(QString)), this, SLOT(updateTextEdit(QString)));
     connect(thread, SIGNAL(clearComboBox()), this, SLOT(clearComboBox()));
     connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()));
+    connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()));
+    connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()));
+
+    //ui setup
+    showStartComms();
 
     //Graph
     ui->plot->addGraph();
@@ -73,6 +78,7 @@ void MainWindow::plotGraph2() {
 
 void MainWindow::scanSerialPorts() {
     MainWindow::ui->comboBoxSerialPorts->clear();
+    ui->comboBoxSerialPorts->addItem("");
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) { //Add all COM ports to the drop down.
         MainWindow::ui->comboBoxSerialPorts->addItem(port.description() + " (" + port.portName() + ")");
     }
@@ -80,6 +86,7 @@ void MainWindow::scanSerialPorts() {
 
 void MainWindow::on_refreshPorts_clicked() {
     scanSerialPorts();
+    ui->comboBoxSerialPorts->setCurrentIndex(0);
 }
 
 void MainWindow::on_startComms_clicked() {
@@ -95,14 +102,14 @@ void MainWindow::updateTextEdit(QString msg) {
     ui->textEdit_2->append(msg);
     if(msg != "") {
         QStringList sensors = msg.split(",");
-        qDebug() << sensors;
+        //qDebug() << sensors;
         double LeftBackSuspensionDisplacement13 = sensors[12].toDouble();
         double RightBackSuspensionDisplacement14 = sensors[13].toDouble();//add in other graph
         addPoint(qv_x.length()+1,LeftBackSuspensionDisplacement13);
         addPoint2Graph(qv_x2.length()+1,RightBackSuspensionDisplacement14);
-        qDebug() << "Plotting this value" << qv_x.length()+1 << LeftBackSuspensionDisplacement13;
+        //qDebug() << "Plotting this value" << qv_x.length()+1 << LeftBackSuspensionDisplacement13;
         plot();
-        qDebug() << "Plotting this value" << qv_x2.length()+1 << RightBackSuspensionDisplacement14;
+        //qDebug() << "Plotting this value" << qv_x2.length()+1 << RightBackSuspensionDisplacement14;
         plotGraph2();
     }
 }
@@ -116,7 +123,24 @@ void MainWindow::clearComboBox() {
     MainWindow::ui->comboBoxSerialPorts->clear();
 }
 
-void MainWindow::on_clearPlot_clicked() {
-    clearData();
-    plot();
+//void MainWindow::on_clearPlot_clicked() {
+//    clearData();
+//    plot();
+//}
+
+void MainWindow::on_pushButton_clicked() {
+    ui->gaugetest->setValue(15);
+    ui->gaugetest->setLabel("Temp");
+    ui->gaugetest->setUnits("C");
+    ui->gaugetest->setThreshold(10);
+}
+
+void MainWindow::showStartComms() {
+    ui->endComms->hide();
+    ui->startComms->show();
+}
+
+void MainWindow::showEndComms() {
+    ui->startComms->hide();
+    ui->endComms->show();
 }
