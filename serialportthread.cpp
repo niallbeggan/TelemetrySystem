@@ -1,6 +1,7 @@
 #include "serialportthread.h"
 
-#define REQUEST_TIME 90
+#define REQUEST_TIME_MS 120
+#define WAIT_FOR_REPLY_TIME 60
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; //Initiliase variables
@@ -130,7 +131,7 @@ void SerialPortThread::sendDataToGUISlot() {
         if(TelemSerialPort->isOpen()) {
             TelemSerialPort->write("1");
             QByteArray datas;
-            msleep(20);
+            msleep(WAIT_FOR_REPLY_TIME);
             QElapsedTimer * timeout = new QElapsedTimer;
             timeout->start();
             datas = TelemSerialPort->readLine();//need to emit an empty signal here if dont get full msg
@@ -149,7 +150,7 @@ void SerialPortThread::sendDataToGUISlot() {
                 for (int i = 0; i < datas.size(); i++)
                     msg += datas[i];
 //            }
-            qDebug() << msg;
+//            qDebug() << msg;
             sensors = msg.split(",");
             if(sensors.length() > 14) //Full msg received
                 emit sendDataToGUI(msg);
@@ -188,6 +189,6 @@ void SerialPortThread::endCommsFromGUI(){
 }
 
 void SerialPortThread::telemRequestDataTimer() {
-    requestTimer->start(90);
+    requestTimer->start(REQUEST_TIME_MS);
     qDebug() << "Starting timer";
 }

@@ -11,16 +11,28 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(startComms()), thread, SLOT(startComms()));
     connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)));
     connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()));
-    connect(thread, SIGNAL(sendDataToGUI(QString)), this, SLOT(updateTextEdit(QString)));
+    connect(thread, SIGNAL(sendDataToGUI(QString)), this, SLOT(updateGUI(QString)));
     connect(thread, SIGNAL(clearComboBox()), this, SLOT(clearComboBox()));
     connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()));
     connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()));
     connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()));
 
-    //ui setup
+    // ui setup
     showStartComms();
 
-    //Graph
+    // Graphing suspension
+    suspensionLeftFront.append(suspensionLeftFrontX);
+    suspensionLeftFront.append(suspensionLeftFrontY);
+
+    suspensionRightFront.append(suspensionLeftFrontX);
+    suspensionRightFront.append(suspensionLeftFrontY);
+
+    suspensionLeftRear.append(suspensionLeftFrontX);
+    suspensionLeftRear.append(suspensionLeftFrontY);
+
+    suspensionRightRear.append(suspensionLeftFrontX);
+    suspensionRightRear.append(suspensionLeftFrontY);
+
     ui->plot->addGraph();
     ui->plot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
     ui->plot->graph(0)->setLineStyle(QCPGraph::lsLine);
@@ -28,53 +40,122 @@ MainWindow::MainWindow(QWidget *parent)
     ui->plot2->addGraph();
     ui->plot2->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
     ui->plot2->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    ui->plot3->addGraph();
+    ui->plot3->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->plot3->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    ui->plot4->addGraph();
+    ui->plot4->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->plot4->graph(0)->setLineStyle(QCPGraph::lsLine);
 }
+
 MainWindow::~MainWindow() {
     delete ui;
 }
 
-void MainWindow::addPoint(double x, double y) {
-    qv_x.append(x);
-    qv_y.append(y);
-}
+//********************** Suspension graphing code here **********************//
 
-void MainWindow::addPoint2Graph(double x, double y) {
-    qv_x2.append(x);
-    qv_y2.append(y);
+void MainWindow::addPointsToGraph(QVector<QVector<double> > &graph, double x, double y) {
+    graph[0].append(x);
+    graph[1].append(y);
 }
 
 void MainWindow::clearData() {
-    qv_x.clear();
-    qv_y.clear();
+    suspensionLeftFrontX.clear();
+    suspensionLeftFrontY.clear();
 }
 
-void MainWindow::plot() {
-    ui->plot->graph(0)->setData(qv_x, qv_y);
+void MainWindow::plotGraph1() {
+    ui->plot->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
     ui->plot->replot();
     double startOfXAxis = 0;
-    if(qv_x.length() == 0) {
+    if(suspensionLeftFront[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
-        startOfXAxis = qv_x[qv_x.length()-1];
+        startOfXAxis = suspensionLeftFront[0][suspensionLeftFront[0].length()-1];
     ui->plot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->plot->yAxis->setRange(1,1030);
+    ui->plot->yAxis->setRange(1,100);
     ui->plot->update();
 }
 
 void MainWindow::plotGraph2() {
-    ui->plot2->graph(0)->setData(qv_x2, qv_y2);
+    ui->plot2->graph(0)->setData(suspensionRightFront[0], suspensionRightFront[1]);
     ui->plot2->replot();
     double startOfXAxis = 0;
-    if(qv_x2.length() == 0) {
+    if(suspensionRightFront[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
-        startOfXAxis = qv_x2[qv_x2.length()-1];
+        startOfXAxis = suspensionRightFront[0][suspensionRightFront[0].length()-1];
     ui->plot2->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->plot2->yAxis->setRange(1,1030);
+    ui->plot2->yAxis->setRange(1,100);
     ui->plot2->update();
 }
+
+void MainWindow::plotGraph3() {
+    ui->plot3->graph(0)->setData(suspensionLeftRear[0], suspensionLeftRear[1]);
+    ui->plot3->replot();
+    double startOfXAxis = 0;
+    if(suspensionLeftRear[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = suspensionLeftRear[0][suspensionLeftRear[0].length()-1];
+    ui->plot3->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->plot3->yAxis->setRange(1,100);
+    ui->plot3->update();
+}
+
+void MainWindow::plotGraph4() {
+    ui->plot4->graph(0)->setData(suspensionRightRear[0], suspensionRightRear[1]);
+    ui->plot4->replot();
+    double startOfXAxis = 0;
+    if(suspensionRightRear[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = suspensionRightRear[0][suspensionRightRear[0].length()-1];
+    ui->plot4->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->plot4->yAxis->setRange(1,100);
+    ui->plot4->update();
+}
+
+//void MainWindow::plot() {
+//    ui->plot->graph(0)->setData(suspensionLeftFrontX, suspensionLeftFrontY);
+//    ui->plot->replot();
+//    double startOfXAxis = 0;
+//    if(suspensionLeftFrontX.length() == 0) {
+//        startOfXAxis = 0;
+//    }
+//    else
+//        startOfXAxis = suspensionLeftFrontX[suspensionLeftFrontX.length()-1];
+//    ui->plot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+//    ui->plot->yAxis->setRange(1,1030);
+//    ui->plot->update();
+//}
+
+//void MainWindow::on_clearPlot_clicked() {
+//    clearData();
+//    plot();
+//}
+
+//void MainWindow::plot(QVector<QVector<double> > &graph) {
+//    ui->plot->graph(0)->setData(graph1[0], graph1[1]);
+//    ui->plot->replot();
+//    double startOfXAxis = 0;
+//    if(graph[0].length() == 0) {
+//        startOfXAxis = 0;
+//    }
+//    else
+//        startOfXAxis = graph[0][graph[0].length()-1];
+//    ui->plot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+//    ui->plot->yAxis->setRange(1,1030);
+//    ui->plot->update();
+//}
+
+//************************MainTab setup functions************************//
 
 void MainWindow::scanSerialPorts() {
     MainWindow::ui->comboBoxSerialPorts->clear();
@@ -89,29 +170,14 @@ void MainWindow::on_refreshPorts_clicked() {
     ui->comboBoxSerialPorts->setCurrentIndex(0);
 }
 
-void MainWindow::on_startComms_clicked() {
-    emit startComms();
+void MainWindow::showStartComms() {
+    ui->endComms->hide();
+    ui->startComms->show();
 }
 
-void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescriptionAndNumber) {
-    emit updateFromComboBox(PortDescriptionAndNumber);
-}
-
-void MainWindow::updateTextEdit(QString msg) {
-    QApplication::processEvents();
-    ui->textEdit_2->append(msg);
-    if(msg != "") {
-        QStringList sensors = msg.split(",");
-        //qDebug() << sensors;
-        double LeftBackSuspensionDisplacement13 = sensors[12].toDouble();
-        double RightBackSuspensionDisplacement14 = sensors[13].toDouble();//add in other graph
-        addPoint(qv_x.length()+1,LeftBackSuspensionDisplacement13);
-        addPoint2Graph(qv_x2.length()+1,RightBackSuspensionDisplacement14);
-        //qDebug() << "Plotting this value" << qv_x.length()+1 << LeftBackSuspensionDisplacement13;
-        plot();
-        //qDebug() << "Plotting this value" << qv_x2.length()+1 << RightBackSuspensionDisplacement14;
-        plotGraph2();
-    }
+void MainWindow::showEndComms() {
+    ui->startComms->hide();
+    ui->endComms->show();
 }
 
 void MainWindow::on_endComms_clicked() {
@@ -123,24 +189,49 @@ void MainWindow::clearComboBox() {
     MainWindow::ui->comboBoxSerialPorts->clear();
 }
 
-//void MainWindow::on_clearPlot_clicked() {
-//    clearData();
-//    plot();
-//}
+void MainWindow::on_startComms_clicked() {
+    emit startComms();
+}
+
+void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescriptionAndNumber) {
+    emit updateFromComboBox(PortDescriptionAndNumber);
+}
+
+//**********************Updating all displays ***************************//
+
+void MainWindow::updateGUI(QString msg) {
+    QApplication::processEvents();
+    ui->textEdit_2->append(msg);
+    if(msg != "") {
+        // Suspension
+        QStringList sensors = msg.split(",");
+        //qDebug() << sensors;
+        addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, sensors[10].toDouble());
+        addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, sensors[11].toDouble());
+        addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, sensors[12].toDouble());
+        addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, sensors[13].toDouble());
+        plotGraph1();
+        plotGraph2();
+        plotGraph3();
+        plotGraph4();
+
+        //Battery
+        updateBatteryTab(sensors[1],sensors[2]);
+    }
+}
+
+//*********************************Battery tab functions *************************//
+
+void MainWindow::updateBatteryTab(QString voltage, QString current) {
+    ui->batteryVoltage->setValue(voltage.toInt());
+    ui->batteryCurrent->setValue(current.toInt());
+    ui->lcdVoltageNumber->display(voltage.toInt());
+    ui->lcdCurrentNumber->display(current);
+}
 
 void MainWindow::on_pushButton_clicked() {
     ui->gaugetest->setValue(15);
     ui->gaugetest->setLabel("Temp");
     ui->gaugetest->setUnits("C");
     ui->gaugetest->setThreshold(10);
-}
-
-void MainWindow::showStartComms() {
-    ui->endComms->hide();
-    ui->startComms->show();
-}
-
-void MainWindow::showEndComms() {
-    ui->startComms->hide();
-    ui->endComms->show();
 }

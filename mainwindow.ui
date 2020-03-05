@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1007</width>
-    <height>436</height>
+    <height>548</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -30,7 +30,7 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="1">
+    <item row="0" column="0">
      <widget class="QTabWidget" name="tabWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -45,128 +45,479 @@
        <attribute name="title">
         <string>Setup</string>
        </attribute>
-       <widget class="QComboBox" name="comboBoxSerialPorts">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>261</width>
-          <height>41</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QTextEdit" name="textEdit_2">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>250</y>
-          <width>261</width>
-          <height>91</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="refreshPorts">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>80</y>
-          <width>261</width>
-          <height>23</height>
-         </rect>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="text">
-         <string>Refresh</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="startComms">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>110</y>
-          <width>261</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="cursor">
-         <cursorShape>ArrowCursor</cursorShape>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(0, 192, 0, 255));
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <widget class="QFrame" name="frame_2">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_9">
+           <item>
+            <widget class="QFrame" name="frame">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>281</width>
+               <height>321</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>281</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="frameShape">
+              <enum>QFrame::NoFrame</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Plain</enum>
+             </property>
+             <property name="lineWidth">
+              <number>2</number>
+             </property>
+             <widget class="QLabel" name="label">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>10</y>
+                <width>74</width>
+                <height>16</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>74</width>
+                <height>16</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>74</width>
+                <height>16</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Select USB port</string>
+              </property>
+             </widget>
+             <widget class="QComboBox" name="comboBoxSerialPorts">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>30</y>
+                <width>261</width>
+                <height>41</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>261</width>
+                <height>41</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>261</width>
+                <height>41</height>
+               </size>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="refreshPorts">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>80</y>
+                <width>261</width>
+                <height>23</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>261</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>261</width>
+                <height>23</height>
+               </size>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>Refresh</string>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="startComms">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>110</y>
+                <width>261</width>
+                <height>51</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>261</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>261</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="cursor">
+               <cursorShape>ArrowCursor</cursorShape>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(0, 192, 0, 255));
 font: 87 16pt &quot;Arial Black&quot; ;</string>
-        </property>
-        <property name="text">
-         <string>START COMMS</string>
-        </property>
-       </widget>
-       <widget class="QPushButton" name="endComms">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>110</y>
-          <width>261</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 87 16pt &quot;Arial Black&quot; ;
+              </property>
+              <property name="text">
+               <string>START COMMS</string>
+              </property>
+             </widget>
+             <widget class="QPushButton" name="endComms">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>110</y>
+                <width>261</width>
+                <height>51</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>261</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>261</width>
+                <height>51</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">font: 87 16pt &quot;Arial Black&quot; ;
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(255, 0, 0, 255));</string>
-        </property>
-        <property name="text">
-         <string>STOP COMMS</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label">
-        <property name="geometry">
-         <rect>
-          <x>9</x>
-          <y>9</y>
-          <width>74</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Select USB port</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="label_2">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>220</y>
-          <width>171</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>COM port output</string>
-        </property>
-       </widget>
+              </property>
+              <property name="text">
+               <string>STOP COMMS</string>
+              </property>
+             </widget>
+             <widget class="QLabel" name="label_2">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>170</y>
+                <width>171</width>
+                <height>16</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>171</width>
+                <height>16</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>171</width>
+                <height>16</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>COM port output</string>
+              </property>
+             </widget>
+             <widget class="QTextEdit" name="textEdit_2">
+              <property name="geometry">
+               <rect>
+                <x>10</x>
+                <y>190</y>
+                <width>261</width>
+                <height>91</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>261</width>
+                <height>91</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>261</width>
+                <height>16777215</height>
+               </size>
+              </property>
+             </widget>
+             <zorder>endComms</zorder>
+             <zorder>label</zorder>
+             <zorder>comboBoxSerialPorts</zorder>
+             <zorder>refreshPorts</zorder>
+             <zorder>startComms</zorder>
+             <zorder>label_2</zorder>
+             <zorder>textEdit_2</zorder>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_3">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_10">
+           <item>
+            <widget class="QLabel" name="label_8">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Battery Temp (degrees Celcius)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGauge" name="widget" native="true"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_4">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_11">
+           <item>
+            <widget class="QLabel" name="label_9">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Voltage (Volts)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGauge" name="widget_2" native="true"/>
+           </item>
+           <item>
+            <widget class="QLCDNumber" name="lcdNumber"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="frame_5">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_12">
+           <item>
+            <widget class="QLabel" name="label_10">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Speed (km/h)</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGauge" name="widget_3" native="true"/>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
        <attribute name="title">
         <string>Suspension</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <widget class="QCustomPlot" name="plot2" native="true"/>
+         <widget class="QFrame" name="frame_7">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_14">
+           <item>
+            <widget class="QLabel" name="label_11">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Plot 2</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="plot2" native="true"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_12">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Plot 1</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="plot" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </item>
         <item>
-         <widget class="QCustomPlot" name="plot" native="true"/>
+         <widget class="QFrame" name="frame_6">
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_13">
+           <item>
+            <widget class="QLabel" name="label_14">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Plot 4</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="plot4" native="true"/>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_13">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="text">
+              <string>Plot 3</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCustomPlot" name="plot3" native="true"/>
+           </item>
+          </layout>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -185,7 +536,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </widget>
           </item>
           <item>
-           <widget class="QProgressBar" name="power">
+           <widget class="QProgressBar" name="batteryPower">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
@@ -201,14 +552,14 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </widget>
           </item>
           <item>
-           <widget class="QLCDNumber" name="lcdNumber"/>
+           <widget class="QLCDNumber" name="lcdWattsNumber"/>
           </item>
          </layout>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QFrame" name="frame">
+           <widget class="QFrame" name="spacerFrame1">
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
@@ -229,7 +580,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </widget>
           </item>
           <item>
-           <widget class="QProgressBar" name="power_2">
+           <widget class="QProgressBar" name="batteryVoltage">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
@@ -245,14 +596,14 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </widget>
           </item>
           <item>
-           <widget class="QLCDNumber" name="lcdNumber_2"/>
+           <widget class="QLCDNumber" name="lcdVoltageNumber"/>
           </item>
          </layout>
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QFrame" name="frame_2">
+           <widget class="QFrame" name="spacerFrame2">
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
@@ -273,7 +624,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </widget>
           </item>
           <item>
-           <widget class="QProgressBar" name="power_3">
+           <widget class="QProgressBar" name="batteryCurrent">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
               <horstretch>0</horstretch>
@@ -289,7 +640,7 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </widget>
           </item>
           <item>
-           <widget class="QLCDNumber" name="lcdNumber_3"/>
+           <widget class="QLCDNumber" name="lcdCurrentNumber"/>
           </item>
          </layout>
         </item>
@@ -377,6 +728,11 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
         </item>
        </layout>
       </widget>
+      <widget class="QWidget" name="tab_5">
+       <attribute name="title">
+        <string>Pedal Positions</string>
+       </attribute>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -390,6 +746,13 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
      <height>21</height>
     </rect>
    </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>Menu</string>
+    </property>
+    <addaction name="separator"/>
+   </widget>
+   <addaction name="menuMenu"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
  </widget>
