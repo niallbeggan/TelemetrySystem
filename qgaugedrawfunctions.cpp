@@ -87,7 +87,7 @@ void QGauge::drawThresholdLine(QPainter *painter)
     QPen pen;
 
     double thresholdAngle = ( m_startAngle+(m_endAngle-m_startAngle)/(m_maxValue-m_minValue)*(m_threshold-m_minValue) );
-    pen.setWidth(2);
+    pen.setWidth(3); // changed from 2
     if(isEnabled())
         pen.setColor(Qt::red);
     else

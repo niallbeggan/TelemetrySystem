@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QMessageBox>
 #include <serialportthread.h>
+#include <QColor>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -20,6 +21,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    // Main Tab
+    void updateMainTemp(int temp);
+    void updateMainVoltage(int voltage);
+    void updateMainSpeed(int speed);
+
+    void updateMainTab(int temp, int voltage, int speed);
 
     //Graph
     void clearData();

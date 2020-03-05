@@ -20,6 +20,36 @@ MainWindow::MainWindow(QWidget *parent)
     // ui setup
     showStartComms();
 
+    // Main Gauges Set Default values to temp voltage speed
+    ui->Main_Battery_Temp_Gauge->setMinValue(0);
+    ui->Main_Battery_Temp_Gauge->setMaxValue(100);
+    ui->Main_Battery_Temp_Gauge->setThreshold(60);// Set these three parameters first
+    ui->Main_Battery_Temp_Gauge->setValue(0);
+    ui->Main_Battery_Temp_Gauge->setLabel("Temp");
+    ui->Main_Battery_Temp_Gauge->setUnits("°C");
+    ui->Main_Battery_Temp_Gauge->setSteps(30);
+
+    ui->Main_Battery_Voltage_Gauge->setMinValue(0); // 17 series cells, 34 would be 2 volts per cell aka dead
+    ui->Main_Battery_Voltage_Gauge->setMaxValue(73); // 17 cells, this would be 4.3 volts per cell, overcharged
+    ui->Main_Battery_Voltage_Gauge->setThresholdEnabled(false);
+    ui->Main_Battery_Voltage_Gauge->setValue(0);
+    ui->Main_Battery_Voltage_Gauge->setLabel("Volts");
+    ui->Main_Battery_Voltage_Gauge->setUnits("V");
+    ui->Main_Battery_Voltage_Gauge->setSteps(30);
+
+    ui->Main_Speed_Gauge->setMinValue(0);
+    ui->Main_Speed_Gauge->setMaxValue(150);// A hopefully higher than feasible top speed
+    ui->Main_Speed_Gauge->setThresholdEnabled(false);
+    //ui->Main_Speed_Gauge->setThreshold(60); // Arbitrary value. Easy to change
+    ui->Main_Speed_Gauge->setValue(0);
+    ui->Main_Speed_Gauge->setLabel("Speed");
+    ui->Main_Speed_Gauge->setUnits("Km/h");
+    ui->Main_Speed_Gauge->setCoverGlassEnabled(true);
+    ui->Main_Speed_Gauge->setSteps(30);
+    ui->Main_Speed_Gauge->setDigitCount(3);
+
+    //ui->Main_Speed_Gauge->setBackground(QColor("black"));
+
     // Graphing suspension
     suspensionLeftFront.append(suspensionLeftFrontX);
     suspensionLeftFront.append(suspensionLeftFrontY);
@@ -155,7 +185,7 @@ void MainWindow::plotGraph4() {
 //    ui->plot->update();
 //}
 
-//************************MainTab setup functions************************//
+//************************MainTab functions************************//
 
 void MainWindow::scanSerialPorts() {
     MainWindow::ui->comboBoxSerialPorts->clear();
@@ -197,12 +227,31 @@ void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescription
     emit updateFromComboBox(PortDescriptionAndNumber);
 }
 
+void MainWindow::updateMainTemp(int temp) {
+    ui->Main_Battery_Temp_Gauge->setValue(temp);
+}
+
+void MainWindow::updateMainVoltage(int voltage) {
+    ui->Main_Battery_Voltage_Gauge->setValue(voltage);
+}
+
+void MainWindow::updateMainSpeed(int speed) {
+    ui->Main_Speed_Gauge->setValue(speed);
+}
+
+void MainWindow::updateMainTab(int temp, int voltage, int speed) {
+    updateMainTemp(temp);
+    updateMainVoltage(voltage);
+    updateMainSpeed(speed);
+}
+
 //**********************Updating all displays ***************************//
 
 void MainWindow::updateGUI(QString msg) {
     QApplication::processEvents();
     ui->textEdit_2->append(msg);
     if(msg != "") {
+
         // Suspension
         QStringList sensors = msg.split(",");
         //qDebug() << sensors;
@@ -215,8 +264,11 @@ void MainWindow::updateGUI(QString msg) {
         plotGraph3();
         plotGraph4();
 
-        //Battery
+        // Battery
         updateBatteryTab(sensors[1],sensors[2]);
+
+        // Main Tab
+        updateMainTab(sensors[10].toInt(),sensors[10].toInt(),sensors[10].toInt());
     }
 }
 
