@@ -61,11 +61,23 @@ MainWindow::MainWindow(QWidget *parent)
     suspensionLeftRear.append(suspensionLeftFrontY);
 
     suspensionRightRear.append(suspensionLeftFrontX);
-    suspensionRightRear.append(suspensionLeftFrontY);
+    suspensionRightRear.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty...
 
     ui->frontLeftPlot->addGraph();
     ui->frontLeftPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
     ui->frontLeftPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->frontLeftPlot->setBackground(Qt::black);
+    //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
+    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white);
+    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white));
+    ui->frontLeftPlot->xAxis->setLabelColor(Qt::white);
+    ui->frontLeftPlot->xAxis->setTickPen(QPen(Qt::white));
+    ui->frontLeftPlot->xAxis->setSubTickPen(QPen(Qt::white));
+    ui->frontLeftPlot->yAxis->setTickLabelColor(Qt::white);
+    ui->frontLeftPlot->yAxis->setBasePen(QPen(Qt::white));
+    ui->frontLeftPlot->yAxis->setLabelColor(Qt::white);
+    ui->frontLeftPlot->yAxis->setTickPen(QPen(Qt::white));
+    ui->frontLeftPlot->yAxis->setSubTickPen(QPen(Qt::white));
 
     ui->rearLeftPlot->addGraph();
     ui->rearLeftPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
