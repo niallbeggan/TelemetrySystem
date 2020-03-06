@@ -29,15 +29,17 @@ public:
 
     void updateMainTab(int temp, int voltage, int speed);
 
-    //Graph
+    // Graphs
     void clearData();
-    void plotGraph1();
-    void plotGraph2();
-    void plotGraph3();
-    void plotGraph4();
+    void frontLeftPlot();
+    void rearLeftPlot();
+    void frontRightPlot();
+    void rearRightPlot();
     void addPointsToGraph(QVector<QVector<double>> &graph, double x, double y);
+    void plotGraphs();
+    void updatePowerLCD(int voltage, int current);
 
-    //Battery
+    // Battery
     void updateBatteryTab(QString voltage, QString current);
 
 private slots:

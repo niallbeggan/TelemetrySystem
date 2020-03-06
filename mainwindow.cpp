@@ -63,21 +63,21 @@ MainWindow::MainWindow(QWidget *parent)
     suspensionRightRear.append(suspensionLeftFrontX);
     suspensionRightRear.append(suspensionLeftFrontY);
 
-    ui->plot->addGraph();
-    ui->plot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->plot->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->frontLeftPlot->addGraph();
+    ui->frontLeftPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->frontLeftPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    ui->plot2->addGraph();
-    ui->plot2->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->plot2->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->rearLeftPlot->addGraph();
+    ui->rearLeftPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->rearLeftPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    ui->plot3->addGraph();
-    ui->plot3->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->plot3->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->frontRightPlot->addGraph();
+    ui->frontRightPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->frontRightPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    ui->plot4->addGraph();
-    ui->plot4->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->plot4->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->rearRightPlot->addGraph();
+    ui->rearRightPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
+    ui->rearRightPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
 }
 
 MainWindow::~MainWindow() {
@@ -91,65 +91,77 @@ void MainWindow::addPointsToGraph(QVector<QVector<double> > &graph, double x, do
     graph[1].append(y);
 }
 
+void MainWindow::plotGraphs() {
+   frontLeftPlot();
+   rearLeftPlot();
+   frontRightPlot();
+   rearRightPlot();
+}
+
+void MainWindow::updatePowerLCD(int voltage, int current) {
+    int power = voltage * current;
+    ui->Power_lcdNumber->display(power);
+}
+
 void MainWindow::clearData() {
     suspensionLeftFrontX.clear();
     suspensionLeftFrontY.clear();
 }
 
-void MainWindow::plotGraph1() {
-    ui->plot->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
-    ui->plot->replot();
+void MainWindow::frontLeftPlot() {
+    ui->frontLeftPlot->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
+    ui->frontLeftPlot->replot();
     double startOfXAxis = 0;
     if(suspensionLeftFront[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionLeftFront[0][suspensionLeftFront[0].length()-1];
-    ui->plot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->plot->yAxis->setRange(1,100);
-    ui->plot->update();
+    ui->frontLeftPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->frontLeftPlot->yAxis->setRange(1,100);
+    ui->frontLeftPlot->update();
 }
 
-void MainWindow::plotGraph2() {
-    ui->plot2->graph(0)->setData(suspensionRightFront[0], suspensionRightFront[1]);
-    ui->plot2->replot();
+void MainWindow::rearLeftPlot() {
+    ui->rearLeftPlot->graph(0)->setData(suspensionRightFront[0], suspensionRightFront[1]);
+    ui->rearLeftPlot->replot();
     double startOfXAxis = 0;
     if(suspensionRightFront[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionRightFront[0][suspensionRightFront[0].length()-1];
-    ui->plot2->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->plot2->yAxis->setRange(1,100);
-    ui->plot2->update();
+    ui->rearLeftPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->rearLeftPlot->yAxis->setRange(1,100);
+    ui->rearLeftPlot->update();
 }
 
-void MainWindow::plotGraph3() {
-    ui->plot3->graph(0)->setData(suspensionLeftRear[0], suspensionLeftRear[1]);
-    ui->plot3->replot();
+void MainWindow::frontRightPlot() {
+    ui->frontRightPlot->graph(0)->setData(suspensionLeftRear[0], suspensionLeftRear[1]);
+    ui->frontRightPlot->replot();
     double startOfXAxis = 0;
     if(suspensionLeftRear[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionLeftRear[0][suspensionLeftRear[0].length()-1];
-    ui->plot3->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->plot3->yAxis->setRange(1,100);
-    ui->plot3->update();
+    ui->frontRightPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->frontRightPlot->yAxis->setRange(1,100);
+    ui->frontRightPlot->update();
 }
 
-void MainWindow::plotGraph4() {
-    ui->plot4->graph(0)->setData(suspensionRightRear[0], suspensionRightRear[1]);
-    ui->plot4->replot();
+void MainWindow::rearRightPlot() {
+    ui->rearRightPlot->graph(0)->setData(suspensionRightRear[0], suspensionRightRear[1]);
+    ui->rearRightPlot->replot();
     double startOfXAxis = 0;
     if(suspensionRightRear[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionRightRear[0][suspensionRightRear[0].length()-1];
-    ui->plot4->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->plot4->yAxis->setRange(1,100);
-    ui->plot4->update();
+    ui->rearRightPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->rearRightPlot->yAxis->setRange(1,100);
+    ui->rearRightPlot->update();
 }
 
 //void MainWindow::plot() {
@@ -259,26 +271,26 @@ void MainWindow::updateGUI(QString msg) {
         addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, sensors[11].toDouble());
         addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, sensors[12].toDouble());
         addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, sensors[13].toDouble());
-        plotGraph1();
-        plotGraph2();
-        plotGraph3();
-        plotGraph4();
+        updatePowerLCD(sensors[1].toInt(), sensors[2].toInt());
+        plotGraphs();
 
         // Battery
         updateBatteryTab(sensors[1],sensors[2]);
 
         // Main Tab
         updateMainTab(sensors[10].toInt(),sensors[10].toInt(),sensors[10].toInt());
+
+        //
     }
 }
 
 //*********************************Battery tab functions *************************//
 
 void MainWindow::updateBatteryTab(QString voltage, QString current) {
-    ui->batteryVoltage->setValue(voltage.toInt());
-    ui->batteryCurrent->setValue(current.toInt());
-    ui->lcdVoltageNumber->display(voltage.toInt());
-    ui->lcdCurrentNumber->display(current);
+    //ui->batteryVoltage->setValue(voltage.toInt());
+    //ui->batteryCurrent->setValue(current.toInt());
+    //ui->lcdVoltageNumber->display(voltage.toInt());
+    //ui->lcdCurrentNumber->display(current);
 }
 
 void MainWindow::on_pushButton_clicked() {
