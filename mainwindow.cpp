@@ -63,33 +63,89 @@ MainWindow::MainWindow(QWidget *parent)
     suspensionRightRear.append(suspensionLeftFrontX);
     suspensionRightRear.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty...
 
-    ui->frontLeftPlot->addGraph();
-    ui->frontLeftPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->frontLeftPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
-    ui->frontLeftPlot->setBackground(Qt::black);
-    //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
-    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white);
-    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white));
-    ui->frontLeftPlot->xAxis->setLabelColor(Qt::white);
-    ui->frontLeftPlot->xAxis->setTickPen(QPen(Qt::white));
-    ui->frontLeftPlot->xAxis->setSubTickPen(QPen(Qt::white));
-    ui->frontLeftPlot->yAxis->setTickLabelColor(Qt::white);
-    ui->frontLeftPlot->yAxis->setBasePen(QPen(Qt::white));
-    ui->frontLeftPlot->yAxis->setLabelColor(Qt::white);
-    ui->frontLeftPlot->yAxis->setTickPen(QPen(Qt::white));
-    ui->frontLeftPlot->yAxis->setSubTickPen(QPen(Qt::white));
+    ui->suspensionTabFrontLeftGraph->addGraph();
+    ui->suspensionTabFrontLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->suspensionTabFrontLeftGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+//    ui->frontLeftPlot->setBackground(Qt::black);
+    // //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
+//    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white); // Needed if i go with black backgroud. hopefully
+//    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white)); // i will be able to switch live time by end of project
+//    ui->frontLeftPlot->xAxis->setLabelColor(Qt::white);
+//    ui->frontLeftPlot->xAxis->setTickPen(QPen(Qt::white));
+//    ui->frontLeftPlot->xAxis->setSubTickPen(QPen(Qt::white));
+//    ui->frontLeftPlot->yAxis->setTickLabelColor(Qt::white);
+//    ui->frontLeftPlot->yAxis->setBasePen(QPen(Qt::white));
+//    ui->frontLeftPlot->yAxis->setLabelColor(Qt::white);
+//    ui->frontLeftPlot->yAxis->setTickPen(QPen(Qt::white));
+//    ui->frontLeftPlot->yAxis->setSubTickPen(QPen(Qt::white));
 
-    ui->rearLeftPlot->addGraph();
-    ui->rearLeftPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->rearLeftPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabRearLeftGraph->addGraph();
+    ui->suspensionTabRearLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->suspensionTabRearLeftGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    ui->frontRightPlot->addGraph();
-    ui->frontRightPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->frontRightPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabFrontRightGraph->addGraph();
+    ui->suspensionTabFrontRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->suspensionTabFrontRightGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    ui->rearRightPlot->addGraph();
-    ui->rearRightPlot->graph(0)->setScatterStyle(QCPScatterStyle::ssCircle);
-    ui->rearRightPlot->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabRearRightGraph->addGraph();
+    ui->suspensionTabRearRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->suspensionTabRearRightGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    // Battery tab settings
+    highestCurrent = 0;
+    lowestVoltage = 100;
+
+    batteryTemp.append(suspensionLeftFrontX);
+    batteryTemp.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty... but need to initialise graph vector
+
+    batteryVoltage.append(suspensionLeftFrontX);
+    batteryVoltage.append(suspensionLeftFrontY);
+
+    batteryCurrent.append(suspensionLeftFrontX);
+    batteryCurrent.append(suspensionLeftFrontY);
+
+    ui->batteryTabTempGraph->addGraph();
+    ui->batteryTabTempGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->batteryTabTempGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->batteryTabTempGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+
+    ui->batteryTabVoltageGraph->addGraph();
+    ui->batteryTabVoltageGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->batteryTabVoltageGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->batteryTabVoltageGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+
+    ui->batteryTabCurrentGraph->addGraph();
+    ui->batteryTabCurrentGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->batteryTabCurrentGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->batteryTabCurrentGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+
+    // Pedal positions tab
+    brakePedal.append(suspensionLeftFrontX);
+    brakePedal.append(suspensionLeftFrontY);
+
+    ui->pedalTabGraph->addGraph();
+    ui->pedalTabGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->pedalTabGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+
+    acceleratorPedal.append(suspensionLeftFrontX);
+    acceleratorPedal.append(suspensionLeftFrontY);
+
+    ui->pedalTabGraph->addGraph();
+    ui->pedalTabGraph->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->pedalTabGraph->graph(1)->setLineStyle(QCPGraph::lsLine);
+    ui->pedalTabGraph->graph(1)->setBrush(QBrush(QColor(255, 0, 0, 60)));
+    ui->pedalTabGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 60)));
+
+    QPen redPen;
+    redPen.setWidth(1);
+    redPen.setColor("red");
+    ui->pedalTabGraph->graph(1)->setPen(redPen);
+
+    // try legend
+    ui->pedalTabGraph->graph(1)->setName("Brake pedal");
+    ui->pedalTabGraph->graph(0)->setName("Accelerator pedal");
+    ui->pedalTabGraph->legend->setVisible(true);
+    //ui->pedalTabGraph->axisRect()->insetLayout()->setInsetAlignment(0, (Qt::AlignTop|Qt::AlignRight));
 }
 
 MainWindow::~MainWindow() {
@@ -121,59 +177,59 @@ void MainWindow::clearData() {
 }
 
 void MainWindow::frontLeftPlot() {
-    ui->frontLeftPlot->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
-    ui->frontLeftPlot->replot();
+    ui->suspensionTabFrontLeftGraph->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
+    ui->suspensionTabFrontLeftGraph->replot();
     double startOfXAxis = 0;
     if(suspensionLeftFront[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionLeftFront[0][suspensionLeftFront[0].length()-1];
-    ui->frontLeftPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->frontLeftPlot->yAxis->setRange(1,100);
-    ui->frontLeftPlot->update();
+    ui->suspensionTabFrontLeftGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabFrontLeftGraph->yAxis->setRange(1,100);
+    ui->suspensionTabFrontLeftGraph->update();
 }
 
 void MainWindow::rearLeftPlot() {
-    ui->rearLeftPlot->graph(0)->setData(suspensionRightFront[0], suspensionRightFront[1]);
-    ui->rearLeftPlot->replot();
+    ui->suspensionTabRearLeftGraph->graph(0)->setData(suspensionRightFront[0], suspensionRightFront[1]);
+    ui->suspensionTabRearLeftGraph->replot();
     double startOfXAxis = 0;
     if(suspensionRightFront[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionRightFront[0][suspensionRightFront[0].length()-1];
-    ui->rearLeftPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->rearLeftPlot->yAxis->setRange(1,100);
-    ui->rearLeftPlot->update();
+    ui->suspensionTabRearLeftGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabRearLeftGraph->yAxis->setRange(1,100);
+    ui->suspensionTabRearLeftGraph->update();
 }
 
 void MainWindow::frontRightPlot() {
-    ui->frontRightPlot->graph(0)->setData(suspensionLeftRear[0], suspensionLeftRear[1]);
-    ui->frontRightPlot->replot();
+    ui->suspensionTabFrontRightGraph->graph(0)->setData(suspensionLeftRear[0], suspensionLeftRear[1]);
+    ui->suspensionTabFrontRightGraph->replot();
     double startOfXAxis = 0;
     if(suspensionLeftRear[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionLeftRear[0][suspensionLeftRear[0].length()-1];
-    ui->frontRightPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->frontRightPlot->yAxis->setRange(1,100);
-    ui->frontRightPlot->update();
+    ui->suspensionTabFrontRightGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabFrontRightGraph->yAxis->setRange(1,100);
+    ui->suspensionTabFrontRightGraph->update();
 }
 
 void MainWindow::rearRightPlot() {
-    ui->rearRightPlot->graph(0)->setData(suspensionRightRear[0], suspensionRightRear[1]);
-    ui->rearRightPlot->replot();
+    ui->suspensionTabRearRightGraph->graph(0)->setData(suspensionRightRear[0], suspensionRightRear[1]);
+    ui->suspensionTabRearRightGraph->replot();
     double startOfXAxis = 0;
     if(suspensionRightRear[0].length() == 0) {
         startOfXAxis = 0;
     }
     else
         startOfXAxis = suspensionRightRear[0][suspensionRightRear[0].length()-1];
-    ui->rearRightPlot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->rearRightPlot->yAxis->setRange(1,100);
-    ui->rearRightPlot->update();
+    ui->suspensionTabRearRightGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabRearRightGraph->yAxis->setRange(1,100);
+    ui->suspensionTabRearRightGraph->update();
 }
 
 //void MainWindow::plot() {
@@ -245,6 +301,7 @@ void MainWindow::clearComboBox() {
 
 void MainWindow::on_startComms_clicked() {
     emit startComms();
+    runningTime.start();
 }
 
 void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescriptionAndNumber) {
@@ -263,10 +320,19 @@ void MainWindow::updateMainSpeed(int speed) {
     ui->Main_Speed_Gauge->setValue(speed);
 }
 
+void MainWindow::updateMainRunningTime() {
+//    int min, sec;
+//    get time here
+//    ui->minutesLcdNumber->display(min);
+//    ui->secondsLcdNumber->display(sec);
+//need to show how long has been running for
+}
+
 void MainWindow::updateMainTab(int temp, int voltage, int speed) {
     updateMainTemp(temp);
     updateMainVoltage(voltage);
     updateMainSpeed(speed);
+    updateMainRunningTime();
 }
 
 //**********************Updating all displays ***************************//
@@ -283,31 +349,137 @@ void MainWindow::updateGUI(QString msg) {
         addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, sensors[11].toDouble());
         addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, sensors[12].toDouble());
         addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, sensors[13].toDouble());
-        updatePowerLCD(sensors[1].toInt(), sensors[2].toInt());
         plotGraphs();
 
         // Battery
-        updateBatteryTab(sensors[1],sensors[2]);
+        updateBatteryTab(sensors[0], sensors[1], sensors[2]);
+        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, sensors[0].toDouble());
+        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, sensors[1].toDouble());
+        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, sensors[2].toDouble());
+        plotBatteryGraphs();
 
         // Main Tab
+        updatePowerLCD(sensors[1].toInt(), sensors[2].toInt()); // put this in updateMainTab
         updateMainTab(sensors[10].toInt(),sensors[10].toInt(),sensors[10].toInt());
+        runningTimeCalc();
 
-        //
+        // Pedal positions tab
+        addPointsToGraph(brakePedal, brakePedal[0].length()+1, sensors[0].toDouble());
+        addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, (sensors[0].toDouble()-20));//remove this
+        plotPedalGraph();
+
     }
 }
 
 //*********************************Battery tab functions *************************//
 
-void MainWindow::updateBatteryTab(QString voltage, QString current) {
-    //ui->batteryVoltage->setValue(voltage.toInt());
-    //ui->batteryCurrent->setValue(current.toInt());
-    //ui->lcdVoltageNumber->display(voltage.toInt());
-    //ui->lcdCurrentNumber->display(current);
+void MainWindow::updateBatteryTab(QString voltage, QString current, QString temp) {
+    double Voltage = voltage.toDouble();
+    double Current = current.toDouble();
+    double Temp = temp.toDouble();
+
+    double maxVoltage = 71.4; // 17 cells 4.2 volts
+    double minVoltage = 51; // 3v/cell
+    double stateOfCharge = 100*(Voltage-minVoltage)/(maxVoltage-minVoltage);
+    if((Voltage < lowestVoltage) && (Voltage > 0))
+        lowestVoltage = Voltage;
+    if(Current > highestCurrent)
+        highestCurrent = Current;
+    ui->batteryTabStateOfChargeProgressBar->setValue(stateOfCharge); // this needs to be updated with more comlplex state of charge calculation
+    ui->batteryTabTempLCD->display(Temp);
+    ui->batteryTabChargeLCD->display(stateOfCharge);
+    ui->batteryTabCurrentLCD->display(Current);
+    ui->batteryTabVoltageLCD->display(Voltage);
+    ui->batteryTabMaxCurrentLCD->display(highestCurrent);
+    ui->batteryTabLowestVoltageLCD->display(lowestVoltage);
 }
 
-void MainWindow::on_pushButton_clicked() {
-    ui->gaugetest->setValue(15);
-    ui->gaugetest->setLabel("Temp");
-    ui->gaugetest->setUnits("C");
-    ui->gaugetest->setThreshold(10);
+void MainWindow::batteryTempPlot() {
+    ui->batteryTabTempGraph->graph(0)->setData(batteryTemp[0], batteryTemp[1]);
+    ui->batteryTabTempGraph->replot();
+    double startOfXAxis = 0;
+    if(batteryTemp[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = batteryTemp[0][batteryTemp[0].length()-1];
+    ui->batteryTabTempGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->batteryTabTempGraph->yAxis->setRange(1,100);
+    ui->batteryTabTempGraph->update();
+}
+
+void MainWindow::batteryCurrentPlot() {
+    ui->batteryTabCurrentGraph->graph(0)->setData(batteryTemp[0], batteryTemp[1]);
+    ui->batteryTabCurrentGraph->replot();
+    double startOfXAxis = 0;
+    if(batteryCurrent[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = batteryCurrent[0][batteryCurrent[0].length()-1];
+    ui->batteryTabCurrentGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->batteryTabCurrentGraph->yAxis->setRange(1,100);
+    ui->batteryTabCurrentGraph->update();
+}
+
+void MainWindow::batteryVoltagePlot() {
+    ui->batteryTabVoltageGraph->graph(0)->setData(batteryVoltage[0], batteryVoltage[1]);
+    ui->batteryTabVoltageGraph->replot();
+    double startOfXAxis = 0;
+    if(batteryVoltage[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = batteryVoltage[0][batteryVoltage[0].length()-1];
+    ui->batteryTabVoltageGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->batteryTabVoltageGraph->yAxis->setRange(1,100);
+    ui->batteryTabVoltageGraph->update();
+}
+
+void MainWindow::plotBatteryGraphs() {
+    batteryTempPlot();
+    batteryCurrentPlot();
+    batteryVoltagePlot();
+}
+
+void MainWindow::pedalBrakePlot() {
+    ui->pedalTabGraph->graph(0)->setData(brakePedal[0], brakePedal[1]);
+    ui->pedalTabGraph->replot();
+    double startOfXAxis = 0;
+    if(brakePedal[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = brakePedal[0][brakePedal[0].length()-1];
+    ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->pedalTabGraph->yAxis->setRange(1,100);
+    ui->pedalTabGraph->update();
+}
+
+void MainWindow::pedalAcceleratorPlot() {
+    ui->pedalTabGraph->graph(1)->setData(acceleratorPedal[0], acceleratorPedal[1]);
+    ui->pedalTabGraph->replot();
+    double startOfXAxis = 0;
+    if(acceleratorPedal[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = acceleratorPedal[0][acceleratorPedal[0].length()-1];
+    ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->pedalTabGraph->yAxis->setRange(1,100);
+    ui->pedalTabGraph->update();
+}
+
+void MainWindow::plotPedalGraph() {
+    pedalAcceleratorPlot();
+    pedalBrakePlot();
+}
+
+void MainWindow::runningTimeCalc() {
+    int secs = runningTime.elapsed() / 1000;
+    int mins = (secs / 60) % 60;
+    // int hours = (secs / 3600);
+    secs = secs % 60;
+    ui->minutesLcdNumber->display(mins);
+    ui->secondsLcdNumber->display(secs);
 }

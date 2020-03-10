@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include <serialportthread.h>
 #include <QColor>
+#include <QElapsedTimer>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,21 +27,37 @@ public:
     void updateMainTemp(int temp);
     void updateMainVoltage(int voltage);
     void updateMainSpeed(int speed);
+    void updateMainRunningTime();
+    void updatePowerLCD(int voltage, int current);
 
     void updateMainTab(int temp, int voltage, int speed);
 
     // Graphs
     void clearData();
+    void addPointsToGraph(QVector<QVector<double>> &graph, double x, double y);
+    void plotGraphs();
+
+    // Suspension
     void frontLeftPlot();
     void rearLeftPlot();
     void frontRightPlot();
     void rearRightPlot();
-    void addPointsToGraph(QVector<QVector<double>> &graph, double x, double y);
-    void plotGraphs();
-    void updatePowerLCD(int voltage, int current);
 
     // Battery
-    void updateBatteryTab(QString voltage, QString current);
+    void updateBatteryTab(QString voltage, QString current, QString temp);
+    void batteryTempPlot();
+    void batteryCurrentPlot();
+    void batteryVoltagePlot();
+    void plotBatteryGraphs();
+
+    // Pedals
+    void updatePedalTab(QString brake, QString accelerator);
+    void pedalBrakePlot();
+    void pedalAcceleratorPlot();
+    void plotPedalGraph();
+
+    // Calculate runtime
+    void runningTimeCalc();
 
 private slots:
     void scanSerialPorts();
@@ -50,8 +67,6 @@ private slots:
     void updateGUI(QString msg);
     void on_endComms_clicked();
     void clearComboBox();
-//    void on_clearPlot_clicked(); for a clear pot button i removed
-    void on_pushButton_clicked();
     void showStartComms();
     void showEndComms();
 
@@ -67,6 +82,20 @@ private:
     QVector <QVector<double>> suspensionRightFront;
     QVector <QVector<double>> suspensionLeftRear;
     QVector <QVector<double>> suspensionRightRear;
+
+    // Battery plots
+    QVector <QVector<double>> batteryTemp;
+    QVector <QVector<double>> batteryVoltage;
+    QVector <QVector<double>> batteryCurrent;
+    double highestCurrent;
+    double lowestVoltage;
+
+    // Pedal position plots
+    QVector <QVector<double>> brakePedal;
+    QVector <QVector<double>> acceleratorPedal;
+
+    // Running time
+    QElapsedTimer runningTime;
 
 signals:
     void startComms();
