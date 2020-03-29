@@ -7,7 +7,7 @@ SerialPortThread::SerialPortThread() {
     portNumber = ""; //Initiliase variables
     TelemSerialPort = NULL;
     connect(this, SIGNAL(startTelem()), this, SLOT(telemRequestDataTimer()));
-    filename = "SuspensionData.txt";
+    filename = "telemData.txt";
     requestTimer = new QTimer(this);
     connect(requestTimer, SIGNAL(timeout()), SLOT(sendDataToGUISlot()));
 }
@@ -150,7 +150,7 @@ void SerialPortThread::sendDataToGUISlot() {
                 for (int i = 0; i < datas.size(); i++)
                     msg += datas[i];
 //            }
-//            qDebug() << msg;
+            qDebug() << msg;//comment
             sensors = msg.split(",");
             if(sensors.length() > 14) //Full msg received
                 emit sendDataToGUI(msg);
@@ -162,7 +162,11 @@ void SerialPortThread::sendDataToGUISlot() {
             QFile file(filename);
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
-                  stream << sensors[12] << "," << sensors[13] << "\n";
+                  //stream << sensors;
+                  for (QStringList::Iterator it = sensors.begin(); it != sensors.end(); ++it)
+                                  stream << *it << "\t";
+                  stream << "\n";
+                  //stream << sensors[12] << "," << sensors[13] << "\n";
                   file.close();
             }
         }

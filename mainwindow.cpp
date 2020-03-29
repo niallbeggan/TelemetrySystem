@@ -344,7 +344,7 @@ void MainWindow::updateGUI(QString msg) {
 
         // Suspension
         QStringList sensors = msg.split(",");
-        //qDebug() << sensors;
+        qDebug() << sensors;
         addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, sensors[10].toDouble());
         addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, sensors[11].toDouble());
         addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, sensors[12].toDouble());
@@ -352,7 +352,7 @@ void MainWindow::updateGUI(QString msg) {
         plotGraphs();
 
         // Battery
-        updateBatteryTab(sensors[0], sensors[1], sensors[2]);
+        updateBatteryTab(sensors[3], sensors[2], sensors[1]);
         addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, sensors[0].toDouble());
         addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, sensors[1].toDouble());
         addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, sensors[2].toDouble());
@@ -360,7 +360,7 @@ void MainWindow::updateGUI(QString msg) {
 
         // Main Tab
         updatePowerLCD(sensors[1].toInt(), sensors[2].toInt()); // put this in updateMainTab
-        updateMainTab(sensors[10].toInt(),sensors[10].toInt(),sensors[10].toInt());
+        updateMainTab(sensors[0].toInt(),sensors[10].toInt(),sensors[10].toInt());
         runningTimeCalc();
 
         // Pedal positions tab
@@ -478,8 +478,9 @@ void MainWindow::plotPedalGraph() {
 void MainWindow::runningTimeCalc() {
     int secs = runningTime.elapsed() / 1000;
     int mins = (secs / 60) % 60;
-    // int hours = (secs / 3600);
+    int hours = (secs / 3600);
     secs = secs % 60;
+    ui->minutesLcdNumber->display(hours);
     ui->minutesLcdNumber->display(mins);
     ui->secondsLcdNumber->display(secs);
 }
