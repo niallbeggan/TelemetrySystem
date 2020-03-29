@@ -28,6 +28,7 @@ private slots:
     void startComms();
     void endCommsFromGUI();
     void telemRequestDataTimer();
+    void updateTimestamp(int millis, int seconds, int minutes, int hours);
 
 private:
     int closeComms(QSerialPort* &port);
@@ -36,6 +37,8 @@ private:
     QTimer * requestTimer;
     QString filename = "Data.txt";
     QMutex serialMutex;
+
+    int milli, second, minute, hour;
 signals:
     void sendDataToGUI(QString msg);
     void clearComboBox();

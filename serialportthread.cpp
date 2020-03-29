@@ -10,6 +10,21 @@ SerialPortThread::SerialPortThread() {
     filename = "telemData.txt";
     requestTimer = new QTimer(this);
     connect(requestTimer, SIGNAL(timeout()), SLOT(sendDataToGUISlot()));
+    QFile file(filename);
+    if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
+          QTextStream stream(&file);
+          stream << "Time H:M:S.mS" << "\t"
+                 << "Sensor 1 \t"
+                 << "Sensor 2 \t"
+                 << "Sensor 3 \t"
+                 << "Sensor 4 \t"
+                 << "Sensor 5 \t"
+                 << "Sensor 6 \t"
+                 << "Sensor 7 \t"
+                 << "Sensor 8 \t";
+          stream << "\n";
+          file.close();
+    }
 }
 
 SerialPortThread::~SerialPortThread() {
@@ -162,11 +177,10 @@ void SerialPortThread::sendDataToGUISlot() {
             QFile file(filename);
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
-                  //stream << sensors;
+                  stream << hour << ":" << minute << ":" << second << "." << milli << "\t";
                   for (QStringList::Iterator it = sensors.begin(); it != sensors.end(); ++it)
                                   stream << *it << "\t";
                   stream << "\n";
-                  //stream << sensors[12] << "," << sensors[13] << "\n";
                   file.close();
             }
         }
@@ -195,4 +209,11 @@ void SerialPortThread::endCommsFromGUI(){
 void SerialPortThread::telemRequestDataTimer() {
     requestTimer->start(REQUEST_TIME_MS);
     qDebug() << "Starting timer";
+}
+
+void SerialPortThread::updateTimestamp(int millis, int seconds, int minutes, int hours) {
+    milli = millis;
+    second = seconds; // Global variable assignment. Shoud find a better way
+    minute = minutes;
+    hour = hours;
 }

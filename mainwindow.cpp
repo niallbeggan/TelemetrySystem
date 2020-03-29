@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()));
     connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()));
     connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()));
+    connect(this, SIGNAL(timestamp(int, int, int, int)), thread, SLOT(updateTimestamp(int, int, int, int)));
 
     // ui setup
     showStartComms();
@@ -133,17 +134,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->addGraph();
     ui->pedalTabGraph->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->pedalTabGraph->graph(1)->setLineStyle(QCPGraph::lsLine);
-    ui->pedalTabGraph->graph(1)->setBrush(QBrush(QColor(255, 0, 0, 60)));
-    ui->pedalTabGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 60)));
+    ui->pedalTabGraph->graph(1)->setBrush(QBrush(QColor(0, 0, 255, 60)));
+    ui->pedalTabGraph->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 60)));
 
     QPen redPen;
     redPen.setWidth(1);
     redPen.setColor("red");
-    ui->pedalTabGraph->graph(1)->setPen(redPen);
+    ui->pedalTabGraph->graph(0)->setPen(redPen);
 
     // try legend
-    ui->pedalTabGraph->graph(1)->setName("Brake pedal");
-    ui->pedalTabGraph->graph(0)->setName("Accelerator pedal");
+    ui->pedalTabGraph->graph(0)->setName("Brake pedal");
+    ui->pedalTabGraph->graph(1)->setName("Accelerator pedal");
     ui->pedalTabGraph->legend->setVisible(true);
     //ui->pedalTabGraph->axisRect()->insetLayout()->setInsetAlignment(0, (Qt::AlignTop|Qt::AlignRight));
 }
@@ -352,20 +353,20 @@ void MainWindow::updateGUI(QString msg) {
         plotGraphs();
 
         // Battery
-        updateBatteryTab(sensors[3], sensors[2], sensors[1]);
-        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, sensors[0].toDouble());
-        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, sensors[1].toDouble());
-        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, sensors[2].toDouble());
+        updateBatteryTab(sensors[3], sensors[4], sensors[1]); // volt, current, tmp
+        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, sensors[1].toDouble());
+        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, sensors[4].toDouble());
+        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, sensors[3].toDouble());
         plotBatteryGraphs();
 
         // Main Tab
-        updatePowerLCD(sensors[1].toInt(), sensors[2].toInt()); // put this in updateMainTab
-        updateMainTab(sensors[0].toInt(),sensors[10].toInt(),sensors[10].toInt());
+        updatePowerLCD(sensors[3].toInt(), sensors[4].toInt()); // put this in updateMainTab
+        updateMainTab(sensors[1].toInt(),sensors[3].toInt(),sensors[2].toInt());
         runningTimeCalc();
 
         // Pedal positions tab
-        addPointsToGraph(brakePedal, brakePedal[0].length()+1, sensors[0].toDouble());
-        addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, (sensors[0].toDouble()-20));//remove this
+        addPointsToGraph(brakePedal, brakePedal[0].length()+1, sensors[9].toDouble());
+        addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, (sensors[8].toDouble()));//remove this
         plotPedalGraph();
 
     }
@@ -404,12 +405,12 @@ void MainWindow::batteryTempPlot() {
     else
         startOfXAxis = batteryTemp[0][batteryTemp[0].length()-1];
     ui->batteryTabTempGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->batteryTabTempGraph->yAxis->setRange(1,100);
+    ui->batteryTabTempGraph->yAxis->setRange(0,100);
     ui->batteryTabTempGraph->update();
 }
 
 void MainWindow::batteryCurrentPlot() {
-    ui->batteryTabCurrentGraph->graph(0)->setData(batteryTemp[0], batteryTemp[1]);
+    ui->batteryTabCurrentGraph->graph(0)->setData(batteryCurrent[0], batteryCurrent[1]);
     ui->batteryTabCurrentGraph->replot();
     double startOfXAxis = 0;
     if(batteryCurrent[0].length() == 0) {
@@ -418,7 +419,7 @@ void MainWindow::batteryCurrentPlot() {
     else
         startOfXAxis = batteryCurrent[0][batteryCurrent[0].length()-1];
     ui->batteryTabCurrentGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->batteryTabCurrentGraph->yAxis->setRange(1,100);
+    ui->batteryTabCurrentGraph->yAxis->setRange(0,500); // PUT HIGHER THAN MAX CURRENT HERE
     ui->batteryTabCurrentGraph->update();
 }
 
@@ -432,7 +433,7 @@ void MainWindow::batteryVoltagePlot() {
     else
         startOfXAxis = batteryVoltage[0][batteryVoltage[0].length()-1];
     ui->batteryTabVoltageGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->batteryTabVoltageGraph->yAxis->setRange(1,100);
+    ui->batteryTabVoltageGraph->yAxis->setRange(40,90);
     ui->batteryTabVoltageGraph->update();
 }
 
@@ -476,11 +477,16 @@ void MainWindow::plotPedalGraph() {
 }
 
 void MainWindow::runningTimeCalc() {
-    int secs = runningTime.elapsed() / 1000;
-    int mins = (secs / 60) % 60;
-    int hours = (secs / 3600);
-    secs = secs % 60;
+    int millis = runningTime.elapsed();
+    //int secs = runningTime.elapsed() / 1000;
+    int secs = (millis/1000) % 60;
+    int mins = (millis / 60000) % 60;
+    int hours = (millis / 3600000);
+    millis = millis % 1000;
+    //secs = secs % 60;
     ui->minutesLcdNumber->display(hours);
     ui->minutesLcdNumber->display(mins);
     ui->secondsLcdNumber->display(secs);
+    ui->millisecondsLcdNumber->display(millis);
+    emit timestamp(millis, secs, mins, hours);
 }

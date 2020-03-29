@@ -101,6 +101,7 @@ signals:
     void startComms();
     void updateFromComboBox(QString PortDescriptionAndNumber);
     void closeComms();
+    void timestamp(int millis, int seconds, int minutes, int hours);
 };
 
 #endif // MAINWINDOW_H
