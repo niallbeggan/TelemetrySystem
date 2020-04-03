@@ -48,7 +48,7 @@
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -478,6 +478,9 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            </item>
            <item>
             <widget class="QGauge" name="Main_Battery_Voltage_Gauge" native="true"/>
+           </item>
+           <item>
+            <widget class="QMeter" name="widget" native="true"/>
            </item>
            <item>
             <widget class="QFrame" name="PowerFrame">
@@ -1772,6 +1775,12 @@ QProgressBar::chunk {
    <class>QGauge</class>
    <extends>QWidget</extends>
    <header>qgauge.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QMeter</class>
+   <extends>QWidget</extends>
+   <header location="global">qmeter.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

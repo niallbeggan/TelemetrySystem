@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(startComms()), thread, SLOT(startComms()));
     connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)));
     connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()));
-    connect(thread, SIGNAL(sendDataToGUI(QString)), this, SLOT(updateGUI(QString)));
+    connect(thread, SIGNAL(sendDataToGUI(QStringList)), this, SLOT(updateGUI(QStringList)));
     connect(thread, SIGNAL(clearComboBox()), this, SLOT(clearComboBox()));
     connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()));
     connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()));
@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Battery_Temp_Gauge->setSteps(30);
 
     ui->Main_Battery_Voltage_Gauge->setMinValue(0); // 17 series cells, 34 would be 2 volts per cell aka dead
-    ui->Main_Battery_Voltage_Gauge->setMaxValue(73); // 17 cells, this would be 4.3 volts per cell, overcharged
+    ui->Main_Battery_Voltage_Gauge->setMaxValue(80); // 17 cells, this would be 4.3 volts per cell, overcharged
     ui->Main_Battery_Voltage_Gauge->setThresholdEnabled(false);
     ui->Main_Battery_Voltage_Gauge->setValue(0);
     ui->Main_Battery_Voltage_Gauge->setLabel("Volts");
@@ -338,14 +338,13 @@ void MainWindow::updateMainTab(int temp, int voltage, int speed) {
 
 //**********************Updating all displays ***************************//
 
-void MainWindow::updateGUI(QString msg) {
+void MainWindow::updateGUI(QStringList sensors) {
     QApplication::processEvents();
-    ui->textEdit_2->append(msg);
-    if(msg != "") {
-
+    //ui->textEdit_2->append(msg); used for debugging
+    if(sensors.length() > 14) {
+        //QStringList sensors = msg.split(",");
+        //qDebug() << sensors;
         // Suspension
-        QStringList sensors = msg.split(",");
-        qDebug() << sensors;
         addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, sensors[10].toDouble());
         addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, sensors[11].toDouble());
         addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, sensors[12].toDouble());

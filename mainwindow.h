@@ -64,7 +64,7 @@ private slots:
     void on_refreshPorts_clicked();
     void on_startComms_clicked();
     void on_comboBoxSerialPorts_activated(const QString &PortDescriptionAndNumber);
-    void updateGUI(QString msg);
+    void updateGUI(QStringList sensors);
     void on_endComms_clicked();
     void clearComboBox();
     void showStartComms();

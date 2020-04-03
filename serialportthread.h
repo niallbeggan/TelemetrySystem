@@ -40,7 +40,7 @@ private:
 
     int milli, second, minute, hour;
 signals:
-    void sendDataToGUI(QString msg);
+    void sendDataToGUI(QStringList sensorValueList);
     void clearComboBox();
     void scanSerialPorts();
     void startTelem();

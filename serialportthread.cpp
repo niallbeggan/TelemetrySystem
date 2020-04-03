@@ -1,7 +1,7 @@
 #include "serialportthread.h"
 
-#define REQUEST_TIME_MS 120
-#define WAIT_FOR_REPLY_TIME 60
+#define REQUEST_TIME_MS 50
+#define WAIT_FOR_REPLY_TIME 25
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; //Initiliase variables
@@ -149,7 +149,7 @@ void SerialPortThread::sendDataToGUISlot() {
             msleep(WAIT_FOR_REPLY_TIME);
             QElapsedTimer * timeout = new QElapsedTimer;
             timeout->start();
-            datas = TelemSerialPort->readLine();//need to emit an empty signal here if dont get full msg
+            datas = TelemSerialPort->readAll();//need to emit an empty signal here if dont get full msg
 //            while(datas.isEmpty() && timeout->elapsed()<100) {
 //                datas = TelemSerialPort->readLine();
 //                qDebug() << "Waiting!";
@@ -162,17 +162,23 @@ void SerialPortThread::sendDataToGUISlot() {
 //            if(datas.isEmpty())
 //                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
 //            else {
-                for (int i = 0; i < datas.size(); i++)
-                    msg += datas[i];
+                  for (int i = 0; i < datas.size()-1; i = i + 2) {// datas.size - 1 because we advance 2 bytes at a time. datas.size-2 because the last byte is \n.
+                      unsigned int bigByte = static_cast < unsigned char > (datas[i]);
+                      unsigned int smallByte = static_cast < unsigned char > (datas[i+1]);
+                      float tmp3 = (bigByte * 256) + smallByte;
+                      tmp3 = tmp3/10;
+                      msg += QString::number(tmp3) + ",";
+                  }
 //            }
-            qDebug() << msg;//comment
+            qDebug() << "msg:" <<msg;
             sensors = msg.split(",");
+            qDebug() << "length :" << sensors.length();
             if(sensors.length() > 14) //Full msg received
-                emit sendDataToGUI(msg);
+                emit sendDataToGUI(sensors);
             else {
                 msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
                 sensors = msg.split(",");
-                emit sendDataToGUI(msg);
+                emit sendDataToGUI(sensors);
             }
             QFile file(filename);
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
