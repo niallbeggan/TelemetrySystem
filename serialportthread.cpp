@@ -162,12 +162,17 @@ void SerialPortThread::sendDataToGUISlot() {
 //            if(datas.isEmpty())
 //                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
 //            else {
-                  for (int i = 0; i < datas.size()-1; i = i + 2) {// datas.size - 1 because we advance 2 bytes at a time. datas.size-2 because the last byte is \n.
-                      unsigned int bigByte = static_cast < unsigned char > (datas[i]);
-                      unsigned int smallByte = static_cast < unsigned char > (datas[i+1]);
-                      float tmp3 = (bigByte * 256) + smallByte;
-                      tmp3 = tmp3/10;
-                      msg += QString::number(tmp3) + ",";
+                  for (int i = 0; i < datas.size()-1; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
+                      int bigByte = static_cast < char > (datas[i]);                //this carries the int's sign
+                      int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
+
+                      qDebug()<< "bigByte: " << bigByte <<"smallByte; " << smallByte;
+                      float signalValue = -100;                                   // Could be neg or pos
+                      if(bigByte < 0)                                                   // If neg change sign of small byte
+                          signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
+                      signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
+                      signalValue = signalValue/10;
+                      msg += QString::number(signalValue) + ",";
                   }
 //            }
             qDebug() << "msg:" <<msg;
