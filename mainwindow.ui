@@ -237,42 +237,11 @@
              <property name="lineWidth">
               <number>2</number>
              </property>
-             <widget class="QLabel" name="label">
-              <property name="geometry">
-               <rect>
-                <x>10</x>
-                <y>10</y>
-                <width>74</width>
-                <height>16</height>
-               </rect>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="minimumSize">
-               <size>
-                <width>74</width>
-                <height>16</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>74</width>
-                <height>16</height>
-               </size>
-              </property>
-              <property name="text">
-               <string>Select USB port</string>
-              </property>
-             </widget>
              <widget class="QComboBox" name="comboBoxSerialPorts">
               <property name="geometry">
                <rect>
                 <x>10</x>
-                <y>30</y>
+                <y>70</y>
                 <width>261</width>
                 <height>41</height>
                </rect>
@@ -299,42 +268,42 @@
              <widget class="QPushButton" name="refreshPorts">
               <property name="geometry">
                <rect>
-                <x>10</x>
-                <y>80</y>
-                <width>261</width>
-                <height>23</height>
+                <x>220</x>
+                <y>10</y>
+                <width>50</width>
+                <height>50</height>
                </rect>
               </property>
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>261</width>
-                <height>23</height>
+                <width>50</width>
+                <height>50</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>261</width>
-                <height>23</height>
+                <width>50</width>
+                <height>50</height>
                </size>
               </property>
               <property name="focusPolicy">
                <enum>Qt::StrongFocus</enum>
               </property>
               <property name="text">
-               <string>Refresh</string>
+               <string/>
               </property>
              </widget>
              <widget class="QPushButton" name="startComms">
               <property name="geometry">
                <rect>
                 <x>10</x>
-                <y>110</y>
+                <y>130</y>
                 <width>261</width>
                 <height>51</height>
                </rect>
@@ -372,7 +341,7 @@ font: 87 16pt &quot;Arial Black&quot; ;</string>
               <property name="geometry">
                <rect>
                 <x>10</x>
-                <y>110</y>
+                <y>130</y>
                 <width>261</width>
                 <height>51</height>
                </rect>
@@ -403,11 +372,46 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
                <string>STOP COMMS</string>
               </property>
              </widget>
+             <widget class="QLabel" name="batteryTabStateOfChargeLabel_3">
+              <property name="geometry">
+               <rect>
+                <x>20</x>
+                <y>20</y>
+                <width>160</width>
+                <height>23</height>
+               </rect>
+              </property>
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>160</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="font">
+               <font>
+                <pointsize>14</pointsize>
+                <weight>75</weight>
+                <bold>true</bold>
+               </font>
+              </property>
+              <property name="styleSheet">
+               <string notr="true"/>
+              </property>
+              <property name="text">
+               <string>Select USB port</string>
+              </property>
+             </widget>
              <zorder>endComms</zorder>
-             <zorder>label</zorder>
              <zorder>comboBoxSerialPorts</zorder>
              <zorder>refreshPorts</zorder>
              <zorder>startComms</zorder>
+             <zorder>batteryTabStateOfChargeLabel_3</zorder>
             </widget>
            </item>
            <item>
@@ -436,19 +440,6 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_10">
            <item>
-            <widget class="QLabel" name="tempLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Battery Temp (°C)</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QGauge" name="Main_Battery_Temp_Gauge" native="true"/>
            </item>
           </layout>
@@ -464,61 +455,10 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_11">
            <item>
-            <widget class="QLabel" name="MainTabVoltageLabel">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Voltage (Volts)</string>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QGauge" name="Main_Battery_Voltage_Gauge" native="true"/>
            </item>
            <item>
-            <widget class="QMeter" name="widget" native="true"/>
-           </item>
-           <item>
-            <widget class="QFrame" name="PowerFrame">
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout">
-              <item>
-               <widget class="QLabel" name="label_8">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Power (Watts)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QLCDNumber" name="Power_lcdNumber">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::NoFrame</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
+            <widget class="QGauge" name="Main_Power_Gauge" native="true"/>
            </item>
           </layout>
          </widget>
@@ -532,19 +472,6 @@ background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgb
            <enum>QFrame::Raised</enum>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <widget class="QLabel" name="speedLabel_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Speed (km/h)</string>
-             </property>
-            </widget>
-           </item>
            <item>
             <widget class="QGauge" name="Main_Speed_Gauge" native="true"/>
            </item>
@@ -1774,13 +1701,7 @@ QProgressBar::chunk {
   <customwidget>
    <class>QGauge</class>
    <extends>QWidget</extends>
-   <header>qgauge.h</header>
-   <container>1</container>
-  </customwidget>
-  <customwidget>
-   <class>QMeter</class>
-   <extends>QWidget</extends>
-   <header location="global">qmeter.h</header>
+   <header location="global">qgauge.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

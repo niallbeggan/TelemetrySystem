@@ -37,6 +37,7 @@ private:
     QTimer * requestTimer;
     QString filename = "Data.txt";
     QMutex serialMutex;
+    int serialErrorTimeoutCount;
 
     int milli, second, minute, hour;
 signals:

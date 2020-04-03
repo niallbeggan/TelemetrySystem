@@ -5,6 +5,7 @@
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; //Initiliase variables
+    serialErrorTimeoutCount = 0;
     TelemSerialPort = NULL;
     connect(this, SIGNAL(startTelem()), this, SLOT(telemRequestDataTimer()));
     filename = "telemData.txt";
@@ -33,6 +34,7 @@ SerialPortThread::~SerialPortThread() {
 }
 
 void SerialPortThread::startComms() {
+    serialErrorTimeoutCount = 0; // Reset serial port hard reset counter every time startcomms is clicked.
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
         if(portNumber == port.portName()) {
             break;
@@ -72,6 +74,8 @@ void SerialPortThread::startComms() {
 }
 
 void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
+    serialErrorTimeoutCount += 1;
+    qDebug() << errorSent;
     QMessageBox msgWarning;
     msgWarning.setText("Failure!\nUSB connection has failed! No data can be recieved.");
     msgWarning.setIcon(QMessageBox::Critical);
@@ -79,11 +83,13 @@ void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
     int err = 0;
     if(errorSent == QSerialPort::NoError)
         err = 0;
-    if((errorSent == QSerialPort::NoError)
+    if((errorSent == QSerialPort::NoError) // These all occur on the 'first pass' when a port is opened. Need to engineer around this.
             || (errorSent == QSerialPort::NotOpenError)
             || (errorSent == QSerialPort::DeviceNotFoundError)) //These occur when USB suddenly unplugged at bad times.
         err = 1;
     else
+        err = 2;
+    if(serialErrorTimeoutCount > 9) // If stuck in loop, force shutdown. serialErrorTimeoutCount reset every time startComms clicked.
         err = 2;
     switch (err) {
     case 1:
@@ -165,8 +171,6 @@ void SerialPortThread::sendDataToGUISlot() {
                   for (int i = 0; i < datas.size()-1; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
                       int bigByte = static_cast < char > (datas[i]);                //this carries the int's sign
                       int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
-
-                      qDebug()<< "bigByte: " << bigByte <<"smallByte; " << smallByte;
                       float signalValue = -100;                                   // Could be neg or pos
                       if(bigByte < 0)                                                   // If neg change sign of small byte
                           signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
@@ -197,6 +201,7 @@ void SerialPortThread::sendDataToGUISlot() {
         }
         else {
             qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "OPEN ERROR: " << TelemSerialPort->errorString();
+            handleError(QSerialPort::DeviceNotFoundError); // should break loopand find errror
         }
     }
 }

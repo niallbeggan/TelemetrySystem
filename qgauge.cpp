@@ -21,7 +21,8 @@ QGauge::QGauge(QWidget *parent)
    setMaximumSize(QSize(1024,1024));
    setStartAngle(225);
    setEndAngle(-45);
-   setForeground(QColor(0, 166, 8));
+   //setForeground(QColor(0, 166, 8));
+   setForeground(QColor(255, 255, 255)); //niallbeggan added this
    setBackground(Qt::black);
    setThresholdEnabled(false);
    setNumericIndicatorEnabled(true);

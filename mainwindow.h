@@ -28,9 +28,9 @@ public:
     void updateMainVoltage(int voltage);
     void updateMainSpeed(int speed);
     void updateMainRunningTime();
-    void updatePowerLCD(int voltage, int current);
+    void updateMainPower(int power);
 
-    void updateMainTab(int temp, int voltage, int speed);
+    void updateMainTab(int temp, int voltage, int speed, int power);
 
     // Graphs
     void clearData();

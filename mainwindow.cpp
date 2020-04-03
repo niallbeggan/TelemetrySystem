@@ -1,6 +1,21 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#define ESTOP sensors[0]
+#define BMSTEMPERATURE sensors[1]
+#define CARSPEED sensors[2]
+#define BMSVOLTAGE sensors[3]
+#define BMSCURRENT sensors[4]
+#define MOTORVOLTAGE sensors[5]
+#define MOTORCURRENT sensors[6]
+#define POWER_KW sensors[7]
+#define ACCELERATOR_PEDAL_POSITION sensors[8]
+#define BRAKE_PEDAL_POSITION sensors[9]
+#define SUSPENSION_FRONT_LEFT sensors[10]
+#define SUSPENSION_FRONT_RIGHT sensors[11]
+#define SUSPENSION_REAR_LEFT sensors[12]
+#define SUSPENSION_REAR_RIGHT sensors[13]
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -20,6 +35,12 @@ MainWindow::MainWindow(QWidget *parent)
 
     // ui setup
     showStartComms();
+
+    //refresh button
+    QPixmap pixmap("C:/Users/Owner/Documents/college/2019-2020/sem2/project/Telem_V1.1.0/refresh");
+    QIcon ButtonIcon(pixmap);
+    ui->refreshPorts->setIconSize(QSize(40,40));
+    ui->refreshPorts->setIcon(ButtonIcon);
 
     // Main Gauges Set Default values to temp voltage speed
     ui->Main_Battery_Temp_Gauge->setMinValue(0);
@@ -48,8 +69,17 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Speed_Gauge->setCoverGlassEnabled(true);
     ui->Main_Speed_Gauge->setSteps(30);
     ui->Main_Speed_Gauge->setDigitCount(3);
-
     //ui->Main_Speed_Gauge->setBackground(QColor("black"));
+
+    ui->Main_Power_Gauge->setMinValue(0);
+    ui->Main_Power_Gauge->setMaxValue(80);// A hopefully higher than feasible top speed
+    ui->Main_Power_Gauge->setThresholdEnabled(false);
+    ui->Main_Power_Gauge->setValue(0);
+    ui->Main_Power_Gauge->setLabel("Power");
+    ui->Main_Power_Gauge->setUnits("kW");
+    ui->Main_Power_Gauge->setSteps(40);
+    ui->Main_Power_Gauge->setDigitCount(3);
+    //ui->Main_Power_Meter->setForeground(QColor("white"));
 
     // Graphing suspension
     suspensionLeftFront.append(suspensionLeftFrontX);
@@ -165,11 +195,6 @@ void MainWindow::plotGraphs() {
    rearLeftPlot();
    frontRightPlot();
    rearRightPlot();
-}
-
-void MainWindow::updatePowerLCD(int voltage, int current) {
-    int power = voltage * current;
-    ui->Power_lcdNumber->display(power);
 }
 
 void MainWindow::clearData() {
@@ -329,11 +354,16 @@ void MainWindow::updateMainRunningTime() {
 //need to show how long has been running for
 }
 
-void MainWindow::updateMainTab(int temp, int voltage, int speed) {
+void MainWindow::updateMainPower(int power) {
+  ui->Main_Power_Gauge->setValue(power);
+}
+
+void MainWindow::updateMainTab(int temp, int voltage, int speed, int power) {
     updateMainTemp(temp);
     updateMainVoltage(voltage);
     updateMainSpeed(speed);
     updateMainRunningTime();
+    updateMainPower(voltage); //CHANGE THIS BACK TO POWER
 }
 
 //**********************Updating all displays ***************************//
@@ -342,30 +372,28 @@ void MainWindow::updateGUI(QStringList sensors) {
     QApplication::processEvents();
     //ui->textEdit_2->append(msg); used for debugging
     if(sensors.length() > 14) {
-        //QStringList sensors = msg.split(",");
         //qDebug() << sensors;
         // Suspension
-        addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, sensors[10].toDouble());
-        addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, sensors[11].toDouble());
-        addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, sensors[12].toDouble());
-        addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, sensors[13].toDouble());
+        addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, SUSPENSION_FRONT_LEFT.toDouble());
+        addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, SUSPENSION_FRONT_RIGHT.toDouble());
+        addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, SUSPENSION_REAR_LEFT.toDouble());
+        addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, SUSPENSION_REAR_RIGHT.toDouble());
         plotGraphs();
 
         // Battery
-        updateBatteryTab(sensors[3], sensors[4], sensors[1]); // volt, current, tmp
-        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, sensors[1].toDouble());
-        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, sensors[4].toDouble());
-        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, sensors[3].toDouble());
+        updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
+        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, BMSTEMPERATURE.toDouble());
+        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, BMSCURRENT.toDouble());
+        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, BMSVOLTAGE.toDouble());
         plotBatteryGraphs();
 
         // Main Tab
-        updatePowerLCD(sensors[3].toInt(), sensors[4].toInt()); // put this in updateMainTab
-        updateMainTab(sensors[1].toInt(),sensors[3].toInt(),sensors[2].toInt());
+        updateMainTab(BMSTEMPERATURE.toInt(), BMSVOLTAGE.toInt(), CARSPEED.toInt(), POWER_KW.toInt());
         runningTimeCalc();
 
         // Pedal positions tab
-        addPointsToGraph(brakePedal, brakePedal[0].length()+1, sensors[9].toDouble());
-        addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, (sensors[8].toDouble()));//remove this
+        addPointsToGraph(brakePedal, brakePedal[0].length()+1, BRAKE_PEDAL_POSITION.toDouble());
+        addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, (ACCELERATOR_PEDAL_POSITION.toDouble()));//remove this
         plotPedalGraph();
 
     }
