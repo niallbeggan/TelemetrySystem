@@ -1,7 +1,7 @@
 #include "serialportthread.h"
 
 #define REQUEST_TIME_MS 50
-#define WAIT_FOR_REPLY_TIME 25
+#define WAIT_FOR_REPLY_TIME 30
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; //Initiliase variables
@@ -15,14 +15,20 @@ SerialPortThread::SerialPortThread() {
     if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
           QTextStream stream(&file);
           stream << "Time H:M:S.mS" << "\t"
-                 << "Sensor 1 \t"
-                 << "Sensor 2 \t"
-                 << "Sensor 3 \t"
-                 << "Sensor 4 \t"
-                 << "Sensor 5 \t"
-                 << "Sensor 6 \t"
-                 << "Sensor 7 \t"
-                 << "Sensor 8 \t";
+                 << "EStop\t"
+                 << "BMS Temperature (C)\t"
+                 << "Car speed (kmph)\t"
+                 << "BMS Voltage (V)\t"
+                 << "BMS Current (A)\t"
+                 << "Motor Voltage (V)\t"
+                 << "Motor Current (A)\t"
+                 << "Power (kW)\t"
+                 << "Acceleration pedal (%)\t"
+                 << "Brake pedal (%)\t"
+                 << "Left front suspension\t"
+                 << "Right front suspension\t"
+                 << "Left back suspension\t"
+                 << "Right back suspension";
           stream << "\n";
           file.close();
     }
@@ -153,9 +159,9 @@ void SerialPortThread::sendDataToGUISlot() {
             TelemSerialPort->write("1");
             QByteArray datas;
             msleep(WAIT_FOR_REPLY_TIME);
-            QElapsedTimer * timeout = new QElapsedTimer;
-            timeout->start();
-            datas = TelemSerialPort->readAll();//need to emit an empty signal here if dont get full msg
+//            QElapsedTimer * timeout = new QElapsedTimer;
+//            timeout->start();
+            datas = TelemSerialPort->readAll();// Need to emit an empty signal here if dont get full msg
 //            while(datas.isEmpty() && timeout->elapsed()<100) {
 //                datas = TelemSerialPort->readLine();
 //                qDebug() << "Waiting!";
@@ -185,7 +191,7 @@ void SerialPortThread::sendDataToGUISlot() {
             if(sensors.length() > 14) //Full msg received
                 emit sendDataToGUI(sensors);
             else {
-                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
+                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,";
                 sensors = msg.split(",");
                 emit sendDataToGUI(sensors);
             }

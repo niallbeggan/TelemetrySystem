@@ -56,9 +56,6 @@ public:
     void pedalAcceleratorPlot();
     void plotPedalGraph();
 
-    // Calculate runtime
-    void runningTimeCalc();
-
 private slots:
     void scanSerialPorts();
     void on_refreshPorts_clicked();

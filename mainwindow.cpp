@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define ESTOP sensors[0]
+#define ESTOP sensors[0] // Makes the code read-able
 #define BMSTEMPERATURE sensors[1]
 #define CARSPEED sensors[2]
 #define BMSVOLTAGE sensors[3]
@@ -37,12 +37,12 @@ MainWindow::MainWindow(QWidget *parent)
     showStartComms();
 
     //refresh button
-    QPixmap pixmap("C:/Users/Owner/Documents/college/2019-2020/sem2/project/Telem_V1.1.0/refresh");
+    QPixmap pixmap("C:/Users/Owner/Documents/college/2019-2020/sem2/project/Telem_V1.1.0/refresh"); //FIX PATH FOR INSTALLABLE VERSION
     QIcon ButtonIcon(pixmap);
-    ui->refreshPorts->setIconSize(QSize(40,40));
+    ui->refreshPorts->setIconSize(QSize(28,28));
     ui->refreshPorts->setIcon(ButtonIcon);
 
-    // Main Gauges Set Default values to temp voltage speed
+    // Main tab Gauges setup
     ui->Main_Battery_Temp_Gauge->setMinValue(0);
     ui->Main_Battery_Temp_Gauge->setMaxValue(100);
     ui->Main_Battery_Temp_Gauge->setThreshold(60);// Set these three parameters first
@@ -62,17 +62,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Speed_Gauge->setMinValue(0);
     ui->Main_Speed_Gauge->setMaxValue(150);// A hopefully higher than feasible top speed
     ui->Main_Speed_Gauge->setThresholdEnabled(false);
-    //ui->Main_Speed_Gauge->setThreshold(60); // Arbitrary value. Easy to change
     ui->Main_Speed_Gauge->setValue(0);
     ui->Main_Speed_Gauge->setLabel("Speed");
     ui->Main_Speed_Gauge->setUnits("Km/h");
     ui->Main_Speed_Gauge->setCoverGlassEnabled(true);
     ui->Main_Speed_Gauge->setSteps(30);
     ui->Main_Speed_Gauge->setDigitCount(3);
-    //ui->Main_Speed_Gauge->setBackground(QColor("black"));
 
     ui->Main_Power_Gauge->setMinValue(0);
-    ui->Main_Power_Gauge->setMaxValue(80);// A hopefully higher than feasible top speed
+    ui->Main_Power_Gauge->setMaxValue(80);
     ui->Main_Power_Gauge->setThresholdEnabled(false);
     ui->Main_Power_Gauge->setValue(0);
     ui->Main_Power_Gauge->setLabel("Power");
@@ -80,6 +78,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Power_Gauge->setSteps(40);
     ui->Main_Power_Gauge->setDigitCount(3);
     //ui->Main_Power_Meter->setForeground(QColor("white"));
+    //ui->Main_Speed_Gauge->setBackground(QColor("black"));
 
     // Graphing suspension
     suspensionLeftFront.append(suspensionLeftFrontX);
@@ -97,18 +96,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabFrontLeftGraph->addGraph();
     ui->suspensionTabFrontLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabFrontLeftGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
-//    ui->frontLeftPlot->setBackground(Qt::black);
-    // //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
-//    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white); // Needed if i go with black backgroud. hopefully
-//    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white)); // i will be able to switch live time by end of project
-//    ui->frontLeftPlot->xAxis->setLabelColor(Qt::white);
-//    ui->frontLeftPlot->xAxis->setTickPen(QPen(Qt::white));
-//    ui->frontLeftPlot->xAxis->setSubTickPen(QPen(Qt::white));
-//    ui->frontLeftPlot->yAxis->setTickLabelColor(Qt::white);
-//    ui->frontLeftPlot->yAxis->setBasePen(QPen(Qt::white));
-//    ui->frontLeftPlot->yAxis->setLabelColor(Qt::white);
-//    ui->frontLeftPlot->yAxis->setTickPen(QPen(Qt::white));
-//    ui->frontLeftPlot->yAxis->setSubTickPen(QPen(Qt::white));
 
     ui->suspensionTabRearLeftGraph->addGraph();
     ui->suspensionTabRearLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -122,12 +109,25 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabRearRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabRearRightGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
 
+//    ui->frontLeftPlot->setBackground(Qt::black);
+//    //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
+//    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white); // Needed if i go with black backgroud. hopefully
+//    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white)); // i will be able to switch colours live time by end of project
+//    ui->frontLeftPlot->xAxis->setLabelColor(Qt::white);
+//    ui->frontLeftPlot->xAxis->setTickPen(QPen(Qt::white));
+//    ui->frontLeftPlot->xAxis->setSubTickPen(QPen(Qt::white));
+//    ui->frontLeftPlot->yAxis->setTickLabelColor(Qt::white);
+//    ui->frontLeftPlot->yAxis->setBasePen(QPen(Qt::white));
+//    ui->frontLeftPlot->yAxis->setLabelColor(Qt::white);
+//    ui->frontLeftPlot->yAxis->setTickPen(QPen(Qt::white));
+//    ui->frontLeftPlot->yAxis->setSubTickPen(QPen(Qt::white));
+
     // Battery tab settings
-    highestCurrent = 0;
+    highestCurrent = 0; // Settings that should get overwritten immediately
     lowestVoltage = 100;
 
     batteryTemp.append(suspensionLeftFrontX);
-    batteryTemp.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty... but need to initialise graph vector
+    batteryTemp.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty... but need to initialise graph vector somehow
 
     batteryVoltage.append(suspensionLeftFrontX);
     batteryVoltage.append(suspensionLeftFrontY);
@@ -164,26 +164,138 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->addGraph();
     ui->pedalTabGraph->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->pedalTabGraph->graph(1)->setLineStyle(QCPGraph::lsLine);
-    ui->pedalTabGraph->graph(1)->setBrush(QBrush(QColor(0, 0, 255, 60)));
-    ui->pedalTabGraph->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 60)));
+    ui->pedalTabGraph->graph(1)->setBrush(QBrush(QColor(0, 0, 255, 60))); // Accelerator blue
+    ui->pedalTabGraph->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 60))); // Brake red
 
     QPen redPen;
     redPen.setWidth(1);
     redPen.setColor("red");
     ui->pedalTabGraph->graph(0)->setPen(redPen);
-
-    // try legend
-    ui->pedalTabGraph->graph(0)->setName("Brake pedal");
+    ui->pedalTabGraph->graph(0)->setName("Brake pedal"); // Legend
     ui->pedalTabGraph->graph(1)->setName("Accelerator pedal");
     ui->pedalTabGraph->legend->setVisible(true);
-    //ui->pedalTabGraph->axisRect()->insetLayout()->setInsetAlignment(0, (Qt::AlignTop|Qt::AlignRight));
 }
 
 MainWindow::~MainWindow() {
     delete ui;
 }
 
-//********************** Suspension graphing code here **********************//
+// ********************** Updating all tabs *************************** //
+
+void MainWindow::updateGUI(QStringList sensors) {
+    QApplication::processEvents();
+    //ui->textEdit_2->append(msg); used for debugging
+    if(sensors.length() > 14) {
+        //qDebug() << sensors;
+
+        // Suspension
+        addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, SUSPENSION_FRONT_LEFT.toDouble());
+        addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, SUSPENSION_FRONT_RIGHT.toDouble());
+        addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, SUSPENSION_REAR_LEFT.toDouble());
+        addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, SUSPENSION_REAR_RIGHT.toDouble());
+        plotGraphs();
+
+        // Battery
+        updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
+        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, BMSTEMPERATURE.toDouble());
+        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, BMSCURRENT.toDouble());
+        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, BMSVOLTAGE.toDouble());
+        plotBatteryGraphs();
+
+        // Main Tab
+        updateMainTab(BMSTEMPERATURE.toInt(), BMSVOLTAGE.toInt(), CARSPEED.toInt(), POWER_KW.toInt());
+
+        // Pedal positions tab
+        updatePedalTab(BRAKE_PEDAL_POSITION, ACCELERATOR_PEDAL_POSITION);
+    }
+}
+
+// ************************ MainTab functions ************************ //
+
+void MainWindow::scanSerialPorts() {
+    MainWindow::ui->comboBoxSerialPorts->clear();
+    ui->comboBoxSerialPorts->addItem("");
+    Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) { // Add all COM ports to the drop down.
+        MainWindow::ui->comboBoxSerialPorts->addItem(port.description() + " (" + port.portName() + ")");
+    }
+}
+
+void MainWindow::on_refreshPorts_clicked() {
+    scanSerialPorts();
+    ui->comboBoxSerialPorts->setCurrentIndex(0);
+}
+
+void MainWindow::showStartComms() {
+    ui->endComms->hide();
+    ui->startComms->show();
+}
+
+void MainWindow::showEndComms() {
+    ui->startComms->hide();
+    ui->endComms->show();
+}
+
+void MainWindow::on_endComms_clicked() {
+    emit closeComms();
+    clearComboBox();
+}
+
+void MainWindow::on_startComms_clicked() {
+    emit startComms();
+    runningTime.start();
+}
+
+void MainWindow::clearComboBox() {
+    MainWindow::ui->comboBoxSerialPorts->clear();
+}
+
+void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescriptionAndNumber) {
+    emit updateFromComboBox(PortDescriptionAndNumber);
+}
+
+void MainWindow::updateMainTemp(int temp) {
+    ui->Main_Battery_Temp_Gauge->setValue(temp);
+}
+
+void MainWindow::updateMainVoltage(int voltage) {
+    ui->Main_Battery_Voltage_Gauge->setValue(voltage);
+}
+
+void MainWindow::updateMainSpeed(int speed) {
+    ui->Main_Speed_Gauge->setValue(speed);
+}
+
+void MainWindow::updateMainRunningTime() {
+    int millis = runningTime.elapsed();
+    int secs = (millis/1000) % 60;
+    int mins = (millis / 60000) % 60;
+    int hours = (millis / 3600000);
+    int hundredths = 0;
+    millis = millis % 1000;
+    hundredths = round(millis/10);
+
+    ui->minutesLcdNumber->display(hours);
+    ui->minutesLcdNumber->display(mins);
+    ui->secondsLcdNumber->display(secs);
+    ui->hundredthsSecondsLcdNumber->display(hundredths);
+
+    emit timestamp(millis, secs, mins, hours);
+}
+
+void MainWindow::updateMainPower(int power) {
+  ui->Main_Power_Gauge->setValue(power);
+}
+
+void MainWindow::updateMainTab(int temp, int voltage, int speed, int power) {
+    updateMainTemp(temp);
+    updateMainVoltage(voltage);
+    updateMainSpeed(speed);
+    updateMainRunningTime();
+    updateMainPower(power);
+    updateMainRunningTime();
+}
+
+//********************** Suspension functions **********************//
 
 void MainWindow::addPointsToGraph(QVector<QVector<double> > &graph, double x, double y) {
     graph[0].append(x);
@@ -197,10 +309,10 @@ void MainWindow::plotGraphs() {
    rearRightPlot();
 }
 
-void MainWindow::clearData() {
-    suspensionLeftFrontX.clear();
-    suspensionLeftFrontY.clear();
-}
+//void MainWindow::clearData() {
+//    suspensionLeftFrontX.clear();
+//    suspensionLeftFrontY.clear();
+//}
 
 void MainWindow::frontLeftPlot() {
     ui->suspensionTabFrontLeftGraph->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
@@ -258,26 +370,12 @@ void MainWindow::rearRightPlot() {
     ui->suspensionTabRearRightGraph->update();
 }
 
-//void MainWindow::plot() {
-//    ui->plot->graph(0)->setData(suspensionLeftFrontX, suspensionLeftFrontY);
-//    ui->plot->replot();
-//    double startOfXAxis = 0;
-//    if(suspensionLeftFrontX.length() == 0) {
-//        startOfXAxis = 0;
-//    }
-//    else
-//        startOfXAxis = suspensionLeftFrontX[suspensionLeftFrontX.length()-1];
-//    ui->plot->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-//    ui->plot->yAxis->setRange(1,1030);
-//    ui->plot->update();
-//}
-
 //void MainWindow::on_clearPlot_clicked() {
 //    clearData();
 //    plot();
 //}
 
-//void MainWindow::plot(QVector<QVector<double> > &graph) {
+//void MainWindow::plot(QVector<QVector<double> > &graph) { // Tried to make a generic graph function
 //    ui->plot->graph(0)->setData(graph1[0], graph1[1]);
 //    ui->plot->replot();
 //    double startOfXAxis = 0;
@@ -290,114 +388,6 @@ void MainWindow::rearRightPlot() {
 //    ui->plot->yAxis->setRange(1,1030);
 //    ui->plot->update();
 //}
-
-//************************MainTab functions************************//
-
-void MainWindow::scanSerialPorts() {
-    MainWindow::ui->comboBoxSerialPorts->clear();
-    ui->comboBoxSerialPorts->addItem("");
-    Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) { //Add all COM ports to the drop down.
-        MainWindow::ui->comboBoxSerialPorts->addItem(port.description() + " (" + port.portName() + ")");
-    }
-}
-
-void MainWindow::on_refreshPorts_clicked() {
-    scanSerialPorts();
-    ui->comboBoxSerialPorts->setCurrentIndex(0);
-}
-
-void MainWindow::showStartComms() {
-    ui->endComms->hide();
-    ui->startComms->show();
-}
-
-void MainWindow::showEndComms() {
-    ui->startComms->hide();
-    ui->endComms->show();
-}
-
-void MainWindow::on_endComms_clicked() {
-    emit closeComms();
-    clearComboBox();
-}
-
-void MainWindow::clearComboBox() {
-    MainWindow::ui->comboBoxSerialPorts->clear();
-}
-
-void MainWindow::on_startComms_clicked() {
-    emit startComms();
-    runningTime.start();
-}
-
-void MainWindow::on_comboBoxSerialPorts_activated(const QString &PortDescriptionAndNumber) {
-    emit updateFromComboBox(PortDescriptionAndNumber);
-}
-
-void MainWindow::updateMainTemp(int temp) {
-    ui->Main_Battery_Temp_Gauge->setValue(temp);
-}
-
-void MainWindow::updateMainVoltage(int voltage) {
-    ui->Main_Battery_Voltage_Gauge->setValue(voltage);
-}
-
-void MainWindow::updateMainSpeed(int speed) {
-    ui->Main_Speed_Gauge->setValue(speed);
-}
-
-void MainWindow::updateMainRunningTime() {
-//    int min, sec;
-//    get time here
-//    ui->minutesLcdNumber->display(min);
-//    ui->secondsLcdNumber->display(sec);
-//need to show how long has been running for
-}
-
-void MainWindow::updateMainPower(int power) {
-  ui->Main_Power_Gauge->setValue(power);
-}
-
-void MainWindow::updateMainTab(int temp, int voltage, int speed, int power) {
-    updateMainTemp(temp);
-    updateMainVoltage(voltage);
-    updateMainSpeed(speed);
-    updateMainRunningTime();
-    updateMainPower(voltage); //CHANGE THIS BACK TO POWER
-}
-
-//**********************Updating all displays ***************************//
-
-void MainWindow::updateGUI(QStringList sensors) {
-    QApplication::processEvents();
-    //ui->textEdit_2->append(msg); used for debugging
-    if(sensors.length() > 14) {
-        //qDebug() << sensors;
-        // Suspension
-        addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, SUSPENSION_FRONT_LEFT.toDouble());
-        addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, SUSPENSION_FRONT_RIGHT.toDouble());
-        addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, SUSPENSION_REAR_LEFT.toDouble());
-        addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, SUSPENSION_REAR_RIGHT.toDouble());
-        plotGraphs();
-
-        // Battery
-        updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
-        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, BMSTEMPERATURE.toDouble());
-        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, BMSCURRENT.toDouble());
-        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, BMSVOLTAGE.toDouble());
-        plotBatteryGraphs();
-
-        // Main Tab
-        updateMainTab(BMSTEMPERATURE.toInt(), BMSVOLTAGE.toInt(), CARSPEED.toInt(), POWER_KW.toInt());
-        runningTimeCalc();
-
-        // Pedal positions tab
-        addPointsToGraph(brakePedal, brakePedal[0].length()+1, BRAKE_PEDAL_POSITION.toDouble());
-        addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, (ACCELERATOR_PEDAL_POSITION.toDouble()));//remove this
-        plotPedalGraph();
-
-    }
-}
 
 //*********************************Battery tab functions *************************//
 
@@ -470,6 +460,16 @@ void MainWindow::plotBatteryGraphs() {
     batteryVoltagePlot();
 }
 
+// ********************** Pedal functions *************************** //
+
+void MainWindow::updatePedalTab(QString brake, QString accelerator) {
+    double Brake = brake.toDouble();
+    double Accelerator = accelerator.toDouble();
+    addPointsToGraph(brakePedal, brakePedal[0].length()+1, Brake);
+    addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, Accelerator); //remove this
+    plotPedalGraph();
+}
+
 void MainWindow::pedalBrakePlot() {
     ui->pedalTabGraph->graph(0)->setData(brakePedal[0], brakePedal[1]);
     ui->pedalTabGraph->replot();
@@ -501,19 +501,4 @@ void MainWindow::pedalAcceleratorPlot() {
 void MainWindow::plotPedalGraph() {
     pedalAcceleratorPlot();
     pedalBrakePlot();
-}
-
-void MainWindow::runningTimeCalc() {
-    int millis = runningTime.elapsed();
-    //int secs = runningTime.elapsed() / 1000;
-    int secs = (millis/1000) % 60;
-    int mins = (millis / 60000) % 60;
-    int hours = (millis / 3600000);
-    millis = millis % 1000;
-    //secs = secs % 60;
-    ui->minutesLcdNumber->display(hours);
-    ui->minutesLcdNumber->display(mins);
-    ui->secondsLcdNumber->display(secs);
-    ui->millisecondsLcdNumber->display(millis);
-    emit timestamp(millis, secs, mins, hours);
 }
