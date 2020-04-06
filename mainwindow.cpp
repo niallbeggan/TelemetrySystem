@@ -22,7 +22,13 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     SerialPortThread *thread = new SerialPortThread();
-    thread->start();
+    QThread* thread1 = new QThread;
+    thread->moveToThread(thread1);
+    thread1->start();
+
+    MainWindow::setWindowTitle("TUD Formula Student Telemetry");
+    setWindowIcon(QIcon(":/TUD_Logo.PNG"));
+
     connect(this, SIGNAL(startComms()), thread, SLOT(startComms()));
     connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)));
     connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()));
@@ -32,12 +38,13 @@ MainWindow::MainWindow(QWidget *parent)
     connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()));
     connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()));
     connect(this, SIGNAL(timestamp(int, int, int, int)), thread, SLOT(updateTimestamp(int, int, int, int)));
+    connect(thread, SIGNAL(msgBoxSignal(int)), this, SLOT(showMessageBox(int)));
 
     // ui setup
     showStartComms();
 
     //refresh button
-    QPixmap pixmap("C:/Users/Owner/Documents/college/2019-2020/sem2/project/Telem_V1.1.0/refresh"); //FIX PATH FOR INSTALLABLE VERSION
+    QPixmap pixmap(":/refresh.PNG"); //FIX PATH FOR INSTALLABLE VERSION
     QIcon ButtonIcon(pixmap);
     ui->refreshPorts->setIconSize(QSize(28,28));
     ui->refreshPorts->setIcon(ButtonIcon);
@@ -180,10 +187,29 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
+void MainWindow::showMessageBox(int type) {
+    if(type == 1) {
+        QMessageBox msgWarning;
+        msgWarning.setText("WARNING!\nPlease select an existing port before trying to start comms.");
+        msgWarning.setIcon(QMessageBox::Warning);
+        msgWarning.setWindowTitle("Caution");
+        msgWarning.exec();
+    }
+    else if(type == 2){
+        QMessageBox msgCritical;
+        msgCritical.setText("Failure!\nUSB connection has failed! No data can be recieved.");
+        msgCritical.setIcon(QMessageBox::Critical);
+        msgCritical.setWindowTitle("Critical!");
+        msgCritical.exec();
+    }
+    //else
+        //NOP yet
+}
+
 // ********************** Updating all tabs *************************** //
 
 void MainWindow::updateGUI(QStringList sensors) {
-    QApplication::processEvents();
+    //QApplication::processEvents(); // Careful with this.
     //ui->textEdit_2->append(msg); used for debugging
     if(sensors.length() > 14) {
         //qDebug() << sensors;
@@ -221,8 +247,16 @@ void MainWindow::scanSerialPorts() {
 }
 
 void MainWindow::on_refreshPorts_clicked() {
+    QPixmap pixmap(":/refresh.PNG");
+    QPixmap reload(":/reload2.PNG");
+    QIcon ButtonIcon(pixmap);
+    QIcon ButtonIcon2(reload);
+    ui->refreshPorts->setIcon(ButtonIcon2);
+    QApplication::processEvents();
     scanSerialPorts();
     ui->comboBoxSerialPorts->setCurrentIndex(0);
+    QThread::msleep(80);
+    ui->refreshPorts->setIcon(ButtonIcon);
 }
 
 void MainWindow::showStartComms() {

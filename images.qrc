@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>refresh.PNG</file>
+        <file>TUD_Logo.PNG</file>
+        <file>reload.PNG</file>
+        <file>reload2.PNG</file>
+    </qresource>
+</RCC>

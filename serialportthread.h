@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <QObject>
-//#include <QQuickItem>
 #include <QWidget>
 #include <QThread>
 #include <QTimer>
@@ -13,7 +12,7 @@
 #include <QMutex>
 #include <QMutexLocker>
 
-class SerialPortThread : public QThread
+class SerialPortThread : public QObject
 {
     Q_OBJECT
 
@@ -47,6 +46,7 @@ signals:
     void startTelem();
     void showStartComms();
     void showEndComms();
+    void msgBoxSignal(int type);
 };
 
 #endif // SERIALPORTTHREAD_H

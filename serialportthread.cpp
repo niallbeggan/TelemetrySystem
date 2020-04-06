@@ -1,10 +1,10 @@
 #include "serialportthread.h"
 
-#define REQUEST_TIME_MS 50
-#define WAIT_FOR_REPLY_TIME 30
+#define REQUEST_TIME_MS 100
+#define WAIT_FOR_REPLY_TIME 10
 
 SerialPortThread::SerialPortThread() {
-    portNumber = ""; //Initiliase variables
+    portNumber = ""; // Initiliase variables
     serialErrorTimeoutCount = 0;
     TelemSerialPort = NULL;
     connect(this, SIGNAL(startTelem()), this, SLOT(telemRequestDataTimer()));
@@ -55,7 +55,7 @@ void SerialPortThread::startComms() {
         if(TelemSerialPort == NULL) {
             TelemSerialPort = new QSerialPort();
             connect(TelemSerialPort, SIGNAL(error(QSerialPort::SerialPortError)), this, SLOT(handleError(QSerialPort::SerialPortError)));
-            //connect(TelemSerialPort, SIGNAL(readyRead()), SLOT(sendDataToGUISlot()));
+            //connect(TelemSerialPort, SIGNAL(readyRead()), SLOT(sendDataToGUISlot())); Going with different method.
             qDebug() << __FILE__ << __LINE__ << "Creating new TelemSerialPort";
         }
         if(TelemSerialPort->isOpen() != true) {
@@ -71,21 +71,13 @@ void SerialPortThread::startComms() {
         }
     }
     else {
-        QMessageBox msgWarning;
-        msgWarning.setText("WARNING!\nPlease select an existing port before trying to start comms.");
-        msgWarning.setIcon(QMessageBox::Warning);
-        msgWarning.setWindowTitle("Caution");
-        msgWarning.exec();
+        emit msgBoxSignal(1);
     }
 }
 
 void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
     serialErrorTimeoutCount += 1;
     qDebug() << errorSent;
-    QMessageBox msgWarning;
-    msgWarning.setText("Failure!\nUSB connection has failed! No data can be recieved.");
-    msgWarning.setIcon(QMessageBox::Critical);
-    msgWarning.setWindowTitle("Critical!");
     int err = 0;
     if(errorSent == QSerialPort::NoError)
         err = 0;
@@ -110,14 +102,14 @@ void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
         }
         else
             qDebug() << __FILE__ << __LINE__ << "Serial port was already closed and deleted!";
-        msgWarning.exec();
+        emit msgBoxSignal(2);
         qDebug() << __FILE__ << __LINE__ << errorSent;
         emit clearComboBox();
         break;
     default:
         // For now, just close everything for any error
         closeComms(TelemSerialPort);
-        msgWarning.exec();
+        emit msgBoxSignal(2);
         qDebug() << __FILE__ << __LINE__ << errorSent;
         break;
     }
@@ -139,7 +131,7 @@ int SerialPortThread::closeComms(QSerialPort* &port) {
         delete port;
         port = NULL;
         portNumber = ""; //delete the portnumber
-        qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "Serial port is closed and deleted!";
+        qDebug() << __FILE__ << __LINE__ << "Serial port is closed and deleted!";
         emit clearComboBox();
         emit showStartComms();
         return 0;
@@ -158,42 +150,25 @@ void SerialPortThread::sendDataToGUISlot() {
         if(TelemSerialPort->isOpen()) {
             TelemSerialPort->write("1");
             QByteArray datas;
-            msleep(WAIT_FOR_REPLY_TIME);
-//            QElapsedTimer * timeout = new QElapsedTimer;
-//            timeout->start();
-            datas = TelemSerialPort->readAll();// Need to emit an empty signal here if dont get full msg
-//            while(datas.isEmpty() && timeout->elapsed()<100) {
-//                datas = TelemSerialPort->readLine();
-//                qDebug() << "Waiting!";
-//                qDebug() << datas;
-//            }
-//            while(datas.size() < 14 && timeout->elapsed()<100) {
-//                qDebug() << datas;
-//                datas += TelemSerialPort->readLine();
-//            }
-//            if(datas.isEmpty())
-//                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,\n";
-//            else {
-                  for (int i = 0; i < datas.size()-1; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
-                      int bigByte = static_cast < char > (datas[i]);                //this carries the int's sign
-                      int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
-                      float signalValue = -100;                                   // Could be neg or pos
-                      if(bigByte < 0)                                                   // If neg change sign of small byte
-                          signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
-                      signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
-                      signalValue = signalValue/10;
-                      msg += QString::number(signalValue) + ",";
-                  }
-//            }
-            qDebug() << "msg:" <<msg;
+            QThread::msleep(WAIT_FOR_REPLY_TIME);
+            datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
+            for (int i = 0; i < datas.size()-1; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
+                int bigByte = static_cast < char > (datas[i]);                //this carries the int's sign
+                int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
+                float signalValue = -100;                                   // Could be neg or pos
+                if(bigByte < 0)                                                   // If neg change sign of small byte
+                    signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
+                signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
+                signalValue = signalValue/10;
+                msg += QString::number(signalValue) + ",";
+            }
             sensors = msg.split(",");
-            qDebug() << "length :" << sensors.length();
             if(sensors.length() > 14) //Full msg received
                 emit sendDataToGUI(sensors);
             else {
                 msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,";
                 sensors = msg.split(",");
-                emit sendDataToGUI(sensors);
+                emit sendDataToGUI(sensors); // Should this be shown?
             }
             QFile file(filename);
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {

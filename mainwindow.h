@@ -66,7 +66,7 @@ private slots:
     void clearComboBox();
     void showStartComms();
     void showEndComms();
-
+    void showMessageBox(int type);
 private:
     Ui::MainWindow *ui;
     QVector <double> suspensionLeftFrontX, suspensionLeftFrontY;
