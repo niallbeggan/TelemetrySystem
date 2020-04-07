@@ -1,14 +1,21 @@
 #include "serialportthread.h"
 
-#define REQUEST_TIME_MS 100
-#define WAIT_FOR_REPLY_TIME 10
+#define REQUEST_TIME_MS 105
+#define WAIT_FOR_REPLY_TIME 15
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; // Initiliase variables
     serialErrorTimeoutCount = 0;
     TelemSerialPort = NULL;
     connect(this, SIGNAL(startTelem()), this, SLOT(telemRequestDataTimer()));
-    filename = "telemData.txt";
+
+    QString time_format = "yyyy_MM_dd_HH-mm-ss";
+    QDateTime a = QDateTime::currentDateTime();
+    QString as = a.toString(time_format);
+    qDebug() << as;
+    QString telem = "_Telemetry_Data.txt";
+
+    filename = as + telem;
     requestTimer = new QTimer(this);
     connect(requestTimer, SIGNAL(timeout()), SLOT(sendDataToGUISlot()));
     QFile file(filename);
@@ -20,9 +27,12 @@ SerialPortThread::SerialPortThread() {
                  << "Car speed (kmph)\t"
                  << "BMS Voltage (V)\t"
                  << "BMS Current (A)\t"
-                 << "Motor Voltage (V)\t"
-                 << "Motor Current (A)\t"
                  << "Power (kW)\t"
+                 << "Left Motor Voltage (V)\t"
+                 << "Right Motor Voltage (A)\t"
+                 << "Left Motor Current (V)\t"
+                 << "Right Motor Current (A)\t"
+                 << "Steering input (%)\t"
                  << "Acceleration pedal (%)\t"
                  << "Brake pedal (%)\t"
                  << "Left front suspension\t"
@@ -163,10 +173,11 @@ void SerialPortThread::sendDataToGUISlot() {
                 msg += QString::number(signalValue) + ",";
             }
             sensors = msg.split(",");
-            if(sensors.length() > 14) //Full msg received
+            qDebug() << sensors;
+            if(sensors.length() > 17) //Full msg received
                 emit sendDataToGUI(sensors);
             else {
-                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,";
+                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100";
                 sensors = msg.split(",");
                 emit sendDataToGUI(sensors); // Should this be shown?
             }

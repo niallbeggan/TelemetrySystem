@@ -11,6 +11,7 @@
 #include <QFile>
 #include <QMutex>
 #include <QMutexLocker>
+#include <QDateTime>
 
 class SerialPortThread : public QObject
 {

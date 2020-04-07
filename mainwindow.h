@@ -27,10 +27,10 @@ public:
     void updateMainTemp(int temp);
     void updateMainVoltage(int voltage);
     void updateMainSpeed(int speed);
-    void updateMainRunningTime();
     void updateMainPower(int power);
+    void updateMainRunningTime();
 
-    void updateMainTab(int temp, int voltage, int speed, int power);
+    void updateMainTab(double temp, double voltage, double speed, double power);
 
     // Graphs
     void clearData();
@@ -56,6 +56,14 @@ public:
     void pedalAcceleratorPlot();
     void plotPedalGraph();
 
+    // Motor & Steering
+    void updateMotorAndSteeringTab(double leftMotorCurrent,
+                                   double leftMotorVoltage,
+                                   double rightMotorCurrent,
+                                   double rightMotorVoltage,
+                                   double steeringInput);
+    void motorDifferentialPlot();
+
 private slots:
     void scanSerialPorts();
     void on_refreshPorts_clicked();
@@ -74,7 +82,7 @@ private:
     QVector <double> suspensionLeftRearX, suspensionLeftRearY;
     QVector <double> suspensionRightRearX, suspensionRightRearY;
 
-    //Try to make QVector of QVectors, one for each graph
+    //QVector of double QVectors, one for each suspension graph
     QVector <QVector<double>> suspensionLeftFront;
     QVector <QVector<double>> suspensionRightFront;
     QVector <QVector<double>> suspensionLeftRear;
@@ -90,6 +98,9 @@ private:
     // Pedal position plots
     QVector <QVector<double>> brakePedal;
     QVector <QVector<double>> acceleratorPedal;
+
+    // Motor plots
+    QVector <QVector<double>> motorDifferentialPower;
 
     // Running time
     QElapsedTimer runningTime;

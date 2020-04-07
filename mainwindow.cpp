@@ -6,15 +6,18 @@
 #define CARSPEED sensors[2]
 #define BMSVOLTAGE sensors[3]
 #define BMSCURRENT sensors[4]
-#define MOTORVOLTAGE sensors[5]
-#define MOTORCURRENT sensors[6]
-#define POWER_KW sensors[7]
-#define ACCELERATOR_PEDAL_POSITION sensors[8]
-#define BRAKE_PEDAL_POSITION sensors[9]
-#define SUSPENSION_FRONT_LEFT sensors[10]
-#define SUSPENSION_FRONT_RIGHT sensors[11]
-#define SUSPENSION_REAR_LEFT sensors[12]
-#define SUSPENSION_REAR_RIGHT sensors[13]
+#define POWER_KW sensors[5]
+#define LEFTMOTORVOLTAGE sensors[6]
+#define RIGHTMOTORVOLTAGE sensors[7]
+#define LEFTMOTORCURRENT sensors[8]
+#define RIGHTMOTORCURRENT sensors[9]
+#define STEERINGINPUT sensors[10]
+#define ACCELERATOR_PEDAL_POSITION sensors[11]
+#define BRAKE_PEDAL_POSITION sensors[12]
+#define SUSPENSION_FRONT_LEFT sensors[13]
+#define SUSPENSION_FRONT_RIGHT sensors[14]
+#define SUSPENSION_REAR_LEFT sensors[15]
+#define SUSPENSION_REAR_RIGHT sensors[16]
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -44,7 +47,7 @@ MainWindow::MainWindow(QWidget *parent)
     showStartComms();
 
     //refresh button
-    QPixmap pixmap(":/refresh.PNG"); //FIX PATH FOR INSTALLABLE VERSION
+    QPixmap pixmap(":/refresh.PNG");
     QIcon ButtonIcon(pixmap);
     ui->refreshPorts->setIconSize(QSize(28,28));
     ui->refreshPorts->setIcon(ButtonIcon);
@@ -76,16 +79,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Speed_Gauge->setSteps(30);
     ui->Main_Speed_Gauge->setDigitCount(3);
 
-    ui->Main_Power_Gauge->setMinValue(0);
-    ui->Main_Power_Gauge->setMaxValue(80);
+    ui->Main_Power_Gauge->setMinValue(0.0);
+    ui->Main_Power_Gauge->setMaxValue(80.0);
     ui->Main_Power_Gauge->setThresholdEnabled(false);
-    ui->Main_Power_Gauge->setValue(0);
+    ui->Main_Power_Gauge->setValue(0.0);
     ui->Main_Power_Gauge->setLabel("Power");
     ui->Main_Power_Gauge->setUnits("kW");
     ui->Main_Power_Gauge->setSteps(40);
     ui->Main_Power_Gauge->setDigitCount(3);
-    //ui->Main_Power_Meter->setForeground(QColor("white"));
-    //ui->Main_Speed_Gauge->setBackground(QColor("black"));
 
     // Graphing suspension
     suspensionLeftFront.append(suspensionLeftFrontX);
@@ -181,6 +182,15 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->graph(0)->setName("Brake pedal"); // Legend
     ui->pedalTabGraph->graph(1)->setName("Accelerator pedal");
     ui->pedalTabGraph->legend->setVisible(true);
+
+    // Motor differential graph
+    motorDifferentialPower.append(suspensionLeftFrontX);
+    motorDifferentialPower.append(suspensionLeftFrontY);
+
+    ui->motorDiffPower->addGraph();
+    ui->motorDiffPower->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->motorDiffPower->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->motorDiffPower->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30))); // Brake red
 }
 
 MainWindow::~MainWindow() {
@@ -210,9 +220,8 @@ void MainWindow::showMessageBox(int type) {
 
 void MainWindow::updateGUI(QStringList sensors) {
     //QApplication::processEvents(); // Careful with this.
-    //ui->textEdit_2->append(msg); used for debugging
-    if(sensors.length() > 14) {
-        //qDebug() << sensors;
+    if(sensors.length() > 17) {
+        qDebug() << sensors;
 
         // Suspension
         addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, SUSPENSION_FRONT_LEFT.toDouble());
@@ -229,10 +238,15 @@ void MainWindow::updateGUI(QStringList sensors) {
         plotBatteryGraphs();
 
         // Main Tab
-        updateMainTab(BMSTEMPERATURE.toInt(), BMSVOLTAGE.toInt(), CARSPEED.toInt(), POWER_KW.toInt());
+        updateMainTab(BMSTEMPERATURE.toDouble(), BMSVOLTAGE.toDouble(), CARSPEED.toDouble(), POWER_KW.toDouble());
 
         // Pedal positions tab
         updatePedalTab(BRAKE_PEDAL_POSITION, ACCELERATOR_PEDAL_POSITION);
+
+        //Motor & Steering tab
+        updateMotorAndSteeringTab(LEFTMOTORVOLTAGE.toDouble(), LEFTMOTORCURRENT.toDouble(),
+                                  RIGHTMOTORVOLTAGE.toDouble(), RIGHTMOTORCURRENT.toDouble(),
+                                  STEERINGINPUT.toDouble());
     }
 }
 
@@ -269,17 +283,17 @@ void MainWindow::showEndComms() {
     ui->endComms->show();
 }
 
-void MainWindow::on_endComms_clicked() {
+void MainWindow::on_endComms_clicked() { // Tells the serial port thread to stop the timer
     emit closeComms();
     clearComboBox();
 }
 
-void MainWindow::on_startComms_clicked() {
+void MainWindow::on_startComms_clicked() { // Tells the serial port thread to start the timer
     emit startComms();
     runningTime.start();
 }
 
-void MainWindow::clearComboBox() {
+void MainWindow::clearComboBox() { // clears USB port options
     MainWindow::ui->comboBoxSerialPorts->clear();
 }
 
@@ -320,7 +334,7 @@ void MainWindow::updateMainPower(int power) {
   ui->Main_Power_Gauge->setValue(power);
 }
 
-void MainWindow::updateMainTab(int temp, int voltage, int speed, int power) {
+void MainWindow::updateMainTab(double temp, double voltage, double speed, double power) { // Cant display decimal places
     updateMainTemp(temp);
     updateMainVoltage(voltage);
     updateMainSpeed(speed);
@@ -343,7 +357,7 @@ void MainWindow::plotGraphs() {
    rearRightPlot();
 }
 
-//void MainWindow::clearData() {
+//void MainWindow::clearData() { Still need to reset GUI when stop is clicked
 //    suspensionLeftFrontX.clear();
 //    suspensionLeftFrontY.clear();
 //}
@@ -430,7 +444,7 @@ void MainWindow::updateBatteryTab(QString voltage, QString current, QString temp
     double Current = current.toDouble();
     double Temp = temp.toDouble();
 
-    double maxVoltage = 71.4; // 17 cells 4.2 volts
+    double maxVoltage = 75.6; // 17 cellS
     double minVoltage = 51; // 3v/cell
     double stateOfCharge = 100*(Voltage-minVoltage)/(maxVoltage-minVoltage);
     if((Voltage < lowestVoltage) && (Voltage > 0))
@@ -470,7 +484,7 @@ void MainWindow::batteryCurrentPlot() {
     else
         startOfXAxis = batteryCurrent[0][batteryCurrent[0].length()-1];
     ui->batteryTabCurrentGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->batteryTabCurrentGraph->yAxis->setRange(0,500); // PUT HIGHER THAN MAX CURRENT HERE
+    ui->batteryTabCurrentGraph->yAxis->setRange(0,500); // PUT HIGHER THAN MAX CURRENT HERE // Need to make automatically updated graph axis ranges
     ui->batteryTabCurrentGraph->update();
 }
 
@@ -535,4 +549,29 @@ void MainWindow::pedalAcceleratorPlot() {
 void MainWindow::plotPedalGraph() {
     pedalAcceleratorPlot();
     pedalBrakePlot();
+}
+
+// ********************** Motor and Steering functions *************************** //
+
+void MainWindow::updateMotorAndSteeringTab(double leftMotorCurrent, double leftMotorVoltage,
+                                           double rightMotorCurrent, double rightMotorVoltage, double steeringInput) {
+    double leftMotorPower = leftMotorCurrent * leftMotorVoltage;
+    double rightMotorPower = rightMotorCurrent * rightMotorVoltage;
+    double differentialPower = rightMotorPower - leftMotorPower; // If left power is bigger, result is neg, plot more left power on left side of graph.
+    addPointsToGraph(motorDifferentialPower, motorDifferentialPower[0].length()+1, differentialPower);
+    motorDifferentialPlot();
+}
+
+void MainWindow::motorDifferentialPlot() {
+    ui->motorDiffPower->graph(0)->setData(motorDifferentialPower[0], motorDifferentialPower[1]);
+    ui->motorDiffPower->replot();
+    double startOfXAxis = 0;
+    if(motorDifferentialPower[0].length() == 0) {
+        startOfXAxis = 0;
+    }
+    else
+        startOfXAxis = motorDifferentialPower[0][motorDifferentialPower[0].length()-1];
+    ui->motorDiffPower->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->motorDiffPower->yAxis->setRange(40,90);
+    ui->motorDiffPower->update();
 }
