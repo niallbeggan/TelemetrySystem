@@ -188,9 +188,11 @@ MainWindow::MainWindow(QWidget *parent)
     motorDifferentialPower.append(suspensionLeftFrontY);
 
     ui->motorDiffPower->addGraph();
-    ui->motorDiffPower->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->motorDiffPower->graph(0)->setScatterStyle(QCPScatterStyle::ssDiamond);
+    ui->motorDiffPower->graph(0)->setValueAxis(ui->motorDiffPower->xAxis);
+    ui->motorDiffPower->graph(0)->setKeyAxis(ui->motorDiffPower->yAxis);
     ui->motorDiffPower->graph(0)->setLineStyle(QCPGraph::lsLine);
-    ui->motorDiffPower->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30))); // Brake red
+    //ui->motorDiffPower->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 255)));
 }
 
 MainWindow::~MainWindow() {
@@ -221,7 +223,7 @@ void MainWindow::showMessageBox(int type) {
 void MainWindow::updateGUI(QStringList sensors) {
     //QApplication::processEvents(); // Careful with this.
     if(sensors.length() > 17) {
-        qDebug() << sensors;
+        // qDebug() << sensors;
 
         // Suspension
         addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, SUSPENSION_FRONT_LEFT.toDouble());
@@ -553,25 +555,29 @@ void MainWindow::plotPedalGraph() {
 
 // ********************** Motor and Steering functions *************************** //
 
-void MainWindow::updateMotorAndSteeringTab(double leftMotorCurrent, double leftMotorVoltage,
-                                           double rightMotorCurrent, double rightMotorVoltage, double steeringInput) {
+void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftMotorCurrent,
+                                           double rightMotorVoltage, double rightMotorCurrent, double steeringInput) {
     double leftMotorPower = leftMotorCurrent * leftMotorVoltage;
     double rightMotorPower = rightMotorCurrent * rightMotorVoltage;
     double differentialPower = rightMotorPower - leftMotorPower; // If left power is bigger, result is neg, plot more left power on left side of graph.
-    addPointsToGraph(motorDifferentialPower, motorDifferentialPower[0].length()+1, differentialPower);
+    addPointsToGraph(motorDifferentialPower, differentialPower, motorDifferentialPower[1].length()+1); // differentialPower
     motorDifferentialPlot();
 }
 
 void MainWindow::motorDifferentialPlot() {
-    ui->motorDiffPower->graph(0)->setData(motorDifferentialPower[0], motorDifferentialPower[1]);
+    ui->motorDiffPower->graph(0)->setData(motorDifferentialPower[1], motorDifferentialPower[0]);
+
+    int pxy = ui->motorDiffPower->xAxis->coordToPixel(0);
+    ui->motorDiffPower->yAxis->setOffset(ui->motorDiffPower->axisRect()->left()-pxy); // Internet code
+
     ui->motorDiffPower->replot();
     double startOfXAxis = 0;
-    if(motorDifferentialPower[0].length() == 0) {
-        startOfXAxis = 0;
+    if(motorDifferentialPower[1].length() < 1000) {
+        startOfXAxis = 1000;
     }
     else
-        startOfXAxis = motorDifferentialPower[0][motorDifferentialPower[0].length()-1];
-    ui->motorDiffPower->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->motorDiffPower->yAxis->setRange(40,90);
+        startOfXAxis = motorDifferentialPower[1][motorDifferentialPower[1].length()-1];
+    ui->motorDiffPower->yAxis->setRange(startOfXAxis,(startOfXAxis-1000));
+    ui->motorDiffPower->xAxis->setRange(-3000,3000);
     ui->motorDiffPower->update();
 }

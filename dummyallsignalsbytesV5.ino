@@ -10,19 +10,24 @@ String replyIf1 = "0";
 //####################################################
 
 bool eStop1 = 1;  
-float bmsTemp2 = 20;
+float bmsTemp2 = 0;
 float carSpeed3 = 0;
-float bmsVoltage4 = 75.6;
+float bmsVoltage4 = 0;
 float bmsCurrent5 = 0;
-float motorVoltage6 = 0;
-float motorCurrent7 = 0;
-// Further signals
-float acceleratorPedalPosition9 = 0;
-float brakePedalPosition10 = 0;
-float suspensionsFrontLeft11 = 0;
-float suspensionsFrontRight12 = 0;
-float suspensionsRearLeft13 = 0;
-float suspensionsRearRight14 = 0;
+float powerkW6 = 0;
+float leftMotorVoltage7 = 0; // Not represented in Application yet 
+float rightMotorVoltage8 = 0; // Not represented in Application yet 
+float leftMotorCurrent9 = 0; // Not represented in Application yet 
+float rightMotorCurrent10 = 0; // Not represented in Application yet 
+float steeringInput11 = 0; // Not represented in Application yet 
+float acceleratorPedalPosition12 = 0;
+
+// Further signals not yet on Raimonds CANBus ID List
+float brakePedalPosition13 = 0;
+float suspensionsFrontLeft14 = 0;
+float suspensionsFrontRight15 = 0;
+float suspensionsRearLeft16 = 0;
+float suspensionsRearRight17 = 0;
 
 //####################################################
 
@@ -43,16 +48,22 @@ void loop() {
   sendSerialAsTwoBytes(carSpeed3);
   sendSerialAsTwoBytes(bmsVoltage4);
   sendSerialAsTwoBytes(bmsCurrent5);
-  sendSerialAsTwoBytes(motorVoltage6);
-  sendSerialAsTwoBytes(motorCurrent7);
+  sendSerialAsTwoBytes(powerkW6); // Power
+  
+  sendSerialAsTwoBytes(leftMotorVoltage7);
+  sendSerialAsTwoBytes(rightMotorVoltage8);
+  sendSerialAsTwoBytes(leftMotorCurrent9);
+  sendSerialAsTwoBytes(rightMotorCurrent10);
 
-  sendSerialAsTwoBytes(100); // Power
-  sendSerialAsTwoBytes(acceleratorPedalPosition9);
-  sendSerialAsTwoBytes(brakePedalPosition10);
-  sendSerialAsTwoBytes(suspensionsFrontLeft11);
-  sendSerialAsTwoBytes(suspensionsFrontRight12);
-  sendSerialAsTwoBytes(suspensionsRearLeft13);
-  sendSerialAsTwoBytes(suspensionsRearRight14);
+  sendSerialAsTwoBytes(steeringInput11);
+  sendSerialAsTwoBytes(acceleratorPedalPosition12);
+
+  // Further signals not yet on Raimonds CANBus ID List
+  sendSerialAsTwoBytes(brakePedalPosition13);
+  sendSerialAsTwoBytes(suspensionsFrontLeft14);
+  sendSerialAsTwoBytes(suspensionsFrontRight15);
+  sendSerialAsTwoBytes(suspensionsRearLeft16);
+  sendSerialAsTwoBytes(suspensionsRearRight17);
 
   replyIf1 = "0"; // dont reply again until next request
  }
@@ -66,7 +77,7 @@ void sendSerialAsTwoBytes(float value) {
   Serial.write(small);
 }
 
-void generateDummyValues() { // Generates dummy data
+void generateDummyValues() { // Generates dummy data for example & sys testing
   if(count == 1200) { // 1200 samples, about 10 a second, therefore roughly 2 minute loop
     count = 0;
   }
@@ -108,28 +119,35 @@ void generateDummyValues() { // Generates dummy data
     carSpeed3 = 0;
   }
   //
-  bmsVoltage4 = round( (76 - sqrt(count/2)) - (bmsCurrent5/60) );
+  bmsVoltage4 = (76 - sqrt(count/2)) - (bmsCurrent5/60);
   //
   bmsCurrent5 = carSpeed3*3;
   //
-  motorVoltage6 = bmsVoltage4 - 3;
+  leftMotorVoltage7 = bmsVoltage4 - 3;
   //
-  motorCurrent7 = round(bmsCurrent5/2);
+  rightMotorVoltage8 = bmsVoltage4 - 3;
+  //
+  leftMotorCurrent9 = round(bmsCurrent5/2);
+  //
+  float x = random(1, 30);
+  rightMotorCurrent10 = round((bmsCurrent5/2) + x);
   //further signals
-  acceleratorPedalPosition9 = carSpeed3;
+  acceleratorPedalPosition12 = carSpeed3;
   //
-  if(acceleratorPedalPosition9 == 0) {
-    brakePedalPosition10 = 100;
+  if(acceleratorPedalPosition12 == 0) {
+    brakePedalPosition13 = 100;
   }
   else {
-    brakePedalPosition10 = 0;
+    brakePedalPosition13 = 0;
   }
   //
-  suspensionsFrontLeft11 = count%100;
+  suspensionsFrontLeft14 = count%100;
   //
-  suspensionsFrontRight12 = count%100;
+  suspensionsFrontRight15 = count%100;
   //
-  suspensionsRearLeft13 = count%100;
+  suspensionsRearLeft16 = count%100;
   //
-  suspensionsRearRight14 = count%100;
+  suspensionsRearRight17 = count%100;
+  //
+  powerkW6 = (bmsVoltage4 * bmsCurrent5)/1000;
  }

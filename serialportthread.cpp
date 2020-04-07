@@ -173,7 +173,7 @@ void SerialPortThread::sendDataToGUISlot() {
                 msg += QString::number(signalValue) + ",";
             }
             sensors = msg.split(",");
-            qDebug() << sensors;
+            // qDebug() << sensors;
             if(sensors.length() > 17) //Full msg received
                 emit sendDataToGUI(sensors);
             else {
