@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Battery_Temp_Gauge->setUnits("°C");
     ui->Main_Battery_Temp_Gauge->setSteps(30);
 
-    ui->Main_Battery_Voltage_Gauge->setMinValue(0); // 17 series cells, 34 would be 2 volts per cell aka dead
+    ui->Main_Battery_Voltage_Gauge->setMinValue(0);
     ui->Main_Battery_Voltage_Gauge->setMaxValue(80); // 17 cells, this would be 4.3 volts per cell, overcharged
     ui->Main_Battery_Voltage_Gauge->setThresholdEnabled(false);
     ui->Main_Battery_Voltage_Gauge->setValue(0);
@@ -104,18 +104,30 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabFrontLeftGraph->addGraph();
     ui->suspensionTabFrontLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabFrontLeftGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabFrontLeftGraph->xAxis->setRange(0, 300);
+    ui->suspensionTabFrontLeftGraph->yAxis->setRange(0, 100);
+    ui->suspensionTabFrontLeftGraph->update();
 
     ui->suspensionTabRearLeftGraph->addGraph();
     ui->suspensionTabRearLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabRearLeftGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabRearLeftGraph->xAxis->setRange(0, 300);
+    ui->suspensionTabRearLeftGraph->yAxis->setRange(0, 100);
+    ui->suspensionTabRearLeftGraph->update();
 
     ui->suspensionTabFrontRightGraph->addGraph();
     ui->suspensionTabFrontRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabFrontRightGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabFrontRightGraph->xAxis->setRange(0, 300);
+    ui->suspensionTabFrontRightGraph->yAxis->setRange(0, 100);
+    ui->suspensionTabFrontRightGraph->update();
 
     ui->suspensionTabRearRightGraph->addGraph();
     ui->suspensionTabRearRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabRearRightGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->suspensionTabRearRightGraph->xAxis->setRange(0, 300);
+    ui->suspensionTabRearRightGraph->yAxis->setRange(0, 100);
+    ui->suspensionTabRearRightGraph->update();
 
 //    ui->frontLeftPlot->setBackground(Qt::black);
 //    //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
@@ -147,16 +159,25 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabTempGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->batteryTabTempGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->batteryTabTempGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+    ui->batteryTabTempGraph->xAxis->setRange(0, 300);
+    ui->batteryTabTempGraph->yAxis->setRange(0, 100);
+    ui->batteryTabTempGraph->update();
 
     ui->batteryTabVoltageGraph->addGraph();
     ui->batteryTabVoltageGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->batteryTabVoltageGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->batteryTabVoltageGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+    ui->batteryTabVoltageGraph->xAxis->setRange(0, 300);
+    ui->batteryTabVoltageGraph->yAxis->setRange(0, 80);
+    ui->batteryTabVoltageGraph->update();
 
     ui->batteryTabCurrentGraph->addGraph();
     ui->batteryTabCurrentGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->batteryTabCurrentGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->batteryTabCurrentGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+    ui->batteryTabCurrentGraph->xAxis->setRange(0, 300);
+    ui->batteryTabCurrentGraph->yAxis->setRange(0, 500);
+    ui->batteryTabCurrentGraph->update();
 
     // Pedal positions tab
     brakePedal.append(suspensionLeftFrontX);
@@ -174,6 +195,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->pedalTabGraph->graph(1)->setBrush(QBrush(QColor(0, 0, 255, 60))); // Accelerator blue
     ui->pedalTabGraph->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 60))); // Brake red
+    ui->pedalTabGraph->xAxis->setRange(0, 300);
+    ui->pedalTabGraph->yAxis->setRange(0, 100);
+    ui->pedalTabGraph->update();
 
     QPen redPen;
     redPen.setWidth(1);
@@ -188,11 +212,33 @@ MainWindow::MainWindow(QWidget *parent)
     motorDifferentialPower.append(suspensionLeftFrontY);
 
     ui->motorDiffPower->addGraph();
-    ui->motorDiffPower->graph(0)->setScatterStyle(QCPScatterStyle::ssDiamond);
+    ui->motorDiffPower->graph(0)->setName("Differential motor power");
+    ui->motorDiffPower->legend->setVisible(true);
+    ui->motorDiffPower->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->motorDiffPower->graph(0)->setValueAxis(ui->motorDiffPower->xAxis);
     ui->motorDiffPower->graph(0)->setKeyAxis(ui->motorDiffPower->yAxis);
     ui->motorDiffPower->graph(0)->setLineStyle(QCPGraph::lsLine);
-    //ui->motorDiffPower->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 255)));
+    ui->motorDiffPower->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
+    ui->motorDiffPower->xAxis->setRange(0, 300);
+    ui->motorDiffPower->yAxis->setRange(-1000, 1000);
+    ui->motorDiffPower->update();
+
+    // Steering Input graph
+    steeringInputPercent.append(suspensionLeftFrontX);
+    steeringInputPercent.append(suspensionLeftFrontY);
+
+    ui->steeringInputGraph->addGraph();
+    ui->steeringInputGraph->graph(0)->setPen(redPen);
+    ui->steeringInputGraph->graph(0)->setName("Steering input "); // Legend
+    ui->steeringInputGraph->legend->setVisible(true);
+    ui->steeringInputGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->steeringInputGraph->graph(0)->setValueAxis(ui->steeringInputGraph->xAxis);
+    ui->steeringInputGraph->graph(0)->setKeyAxis(ui->steeringInputGraph->yAxis);
+    ui->steeringInputGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
+    ui->steeringInputGraph->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 30)));
+    ui->steeringInputGraph->xAxis->setRange(0, 300);
+    ui->steeringInputGraph->yAxis->setRange(-100, 100);
+    ui->steeringInputGraph->update();
 }
 
 MainWindow::~MainWindow() {
@@ -291,6 +337,21 @@ void MainWindow::on_endComms_clicked() { // Tells the serial port thread to stop
 }
 
 void MainWindow::on_startComms_clicked() { // Tells the serial port thread to start the timer
+    // Reset GUI graphs
+    clearData(suspensionLeftFront);
+    clearData(suspensionRightFront);
+    clearData(suspensionLeftRear);
+    clearData(suspensionRightRear);
+    clearData(batteryTemp);
+    clearData(batteryVoltage);
+    clearData(batteryCurrent);
+    clearData(brakePedal);
+    clearData(acceleratorPedal);
+    clearData(motorDifferentialPower);
+    clearData(steeringInputPercent);
+    highestCurrent = 0;
+    lowestVoltage = 100;
+
     emit startComms();
     runningTime.start();
 }
@@ -359,10 +420,10 @@ void MainWindow::plotGraphs() {
    rearRightPlot();
 }
 
-//void MainWindow::clearData() { Still need to reset GUI when stop is clicked
-//    suspensionLeftFrontX.clear();
-//    suspensionLeftFrontY.clear();
-//}
+void MainWindow::clearData(QVector <QVector<double>> &plotVector) { // Still need to reset GUI when start is clicked
+    plotVector[0].clear();
+    plotVector[1].clear();
+}
 
 void MainWindow::frontLeftPlot() {
     ui->suspensionTabFrontLeftGraph->graph(0)->setData(suspensionLeftFront[0], suspensionLeftFront[1]);
@@ -486,7 +547,15 @@ void MainWindow::batteryCurrentPlot() {
     else
         startOfXAxis = batteryCurrent[0][batteryCurrent[0].length()-1];
     ui->batteryTabCurrentGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->batteryTabCurrentGraph->yAxis->setRange(0,500); // PUT HIGHER THAN MAX CURRENT HERE // Need to make automatically updated graph axis ranges
+    double min = *std::min_element(batteryCurrent[1].constBegin(), batteryCurrent[1].constEnd());
+    if(0 < min)
+        min = 0;
+    if(min == -100) // need to fix this -100 lark by plotting against time
+        min = 0;
+    double max = *std::max_element(batteryCurrent[1].constBegin(), batteryCurrent[1].constEnd());
+    if(300 > max)
+        max = 300;
+    ui->batteryTabCurrentGraph->yAxis->setRange(min-1, max+1);
     ui->batteryTabCurrentGraph->update();
 }
 
@@ -500,7 +569,13 @@ void MainWindow::batteryVoltagePlot() {
     else
         startOfXAxis = batteryVoltage[0][batteryVoltage[0].length()-1];
     ui->batteryTabVoltageGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->batteryTabVoltageGraph->yAxis->setRange(40,90);
+    double min = *std::min_element(batteryVoltage[1].constBegin(), batteryVoltage[1].constEnd());
+    double max = *std::max_element(batteryVoltage[1].constBegin(), batteryVoltage[1].constEnd());
+    if(min == -100)
+        min = 0;
+    if(80 > max)
+        max = 80;
+    ui->batteryTabVoltageGraph->yAxis->setRange(min-1, max+1);
     ui->batteryTabVoltageGraph->update();
 }
 
@@ -530,7 +605,7 @@ void MainWindow::pedalBrakePlot() {
     else
         startOfXAxis = brakePedal[0][brakePedal[0].length()-1];
     ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->pedalTabGraph->yAxis->setRange(1,100);
+    ui->pedalTabGraph->yAxis->setRange(0,100);
     ui->pedalTabGraph->update();
 }
 
@@ -544,7 +619,7 @@ void MainWindow::pedalAcceleratorPlot() {
     else
         startOfXAxis = acceleratorPedal[0][acceleratorPedal[0].length()-1];
     ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
-    ui->pedalTabGraph->yAxis->setRange(1,100);
+    ui->pedalTabGraph->yAxis->setRange(0,100);
     ui->pedalTabGraph->update();
 }
 
@@ -559,9 +634,18 @@ void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftM
                                            double rightMotorVoltage, double rightMotorCurrent, double steeringInput) {
     double leftMotorPower = leftMotorCurrent * leftMotorVoltage;
     double rightMotorPower = rightMotorCurrent * rightMotorVoltage;
+    if(leftMotorVoltage == -100) {
+        leftMotorVoltage = 0;
+        leftMotorCurrent = 0;
+        rightMotorCurrent = 0;
+        rightMotorVoltage = 0;
+        steeringInput = 0;
+    }
     double differentialPower = rightMotorPower - leftMotorPower; // If left power is bigger, result is neg, plot more left power on left side of graph.
     addPointsToGraph(motorDifferentialPower, differentialPower, motorDifferentialPower[1].length()+1); // differentialPower
+    addPointsToGraph(steeringInputPercent, steeringInput, steeringInputPercent[1].length()+1);
     motorDifferentialPlot();
+    steeringInputPlot();
 }
 
 void MainWindow::motorDifferentialPlot() {
@@ -578,6 +662,31 @@ void MainWindow::motorDifferentialPlot() {
     else
         startOfXAxis = motorDifferentialPower[1][motorDifferentialPower[1].length()-1];
     ui->motorDiffPower->yAxis->setRange(startOfXAxis,(startOfXAxis-1000));
-    ui->motorDiffPower->xAxis->setRange(-3000,3000);
+    double min = *std::min_element(motorDifferentialPower[0].constBegin(), motorDifferentialPower[0].constEnd());
+    double max = *std::max_element(motorDifferentialPower[0].constBegin(), motorDifferentialPower[0].constEnd());
+    ui->motorDiffPower->xAxis->setRange(min-1,max+1);
     ui->motorDiffPower->update();
+}
+
+void MainWindow::steeringInputPlot() {
+    ui->steeringInputGraph->graph(0)->setData(steeringInputPercent[1], steeringInputPercent[0]);
+
+    int pxy = ui->steeringInputGraph->xAxis->coordToPixel(0);
+    ui->steeringInputGraph->yAxis->setOffset(ui->steeringInputGraph->axisRect()->left()-pxy); // Internet code
+
+    ui->steeringInputGraph->replot();
+    double startOfXAxis = 0;
+    if(steeringInputPercent[1].length() < 1000) {
+        startOfXAxis = 1000;
+    }
+    else
+        startOfXAxis = steeringInputPercent[1][steeringInputPercent[1].length()-1];
+    ui->steeringInputGraph->yAxis->setRange(startOfXAxis,(startOfXAxis-1000));
+    double min = *std::min_element(steeringInputPercent[0].constBegin(), steeringInputPercent[0].constEnd());
+    if(min == -100) {
+        min = -100;
+    }
+    double max = *std::max_element(steeringInputPercent[0].constBegin(), steeringInputPercent[0].constEnd());
+    ui->steeringInputGraph->xAxis->setRange(min-1, max+1);
+    ui->steeringInputGraph->update();
 }

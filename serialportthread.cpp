@@ -1,7 +1,7 @@
 #include "serialportthread.h"
 
-#define REQUEST_TIME_MS 105
-#define WAIT_FOR_REPLY_TIME 15
+#define REQUEST_TIME_MS 150
+#define WAIT_FOR_REPLY_TIME 5
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; // Initiliase variables
@@ -21,7 +21,8 @@ SerialPortThread::SerialPortThread() {
     QFile file(filename);
     if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
           QTextStream stream(&file);
-          stream << "Time H:M:S.mS" << "\t"
+          stream <<"UTC_Timestamp\t"
+                 << "Time H:M:S.mS\t"
                  << "EStop\t"
                  << "BMS Temperature (C)\t"
                  << "Car speed (kmph)\t"
@@ -51,15 +52,16 @@ SerialPortThread::~SerialPortThread() {
 
 void SerialPortThread::startComms() {
     serialErrorTimeoutCount = 0; // Reset serial port hard reset counter every time startcomms is clicked.
+    int found = 0;
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
         if(portNumber == port.portName()) {
-            break;
+            found = 1;
             qDebug() << __FILE__ << __LINE__ << port.portName();
         }
-        else {
-            portNumber = "";
-            emit scanSerialPorts();
-        }
+    }
+    if(found == 0) {
+        portNumber = "";
+        emit scanSerialPorts();
     }
     if(portNumber != "") {
         if(TelemSerialPort == NULL) {
@@ -161,8 +163,9 @@ void SerialPortThread::sendDataToGUISlot() {
             TelemSerialPort->write("1");
             QByteArray datas;
             QThread::msleep(WAIT_FOR_REPLY_TIME);
+            int store_I = 0; // Needed to parse UTC timestamp
             datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
-            for (int i = 0; i < datas.size()-1; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
+            for (int i = 0; i < datas.size()-5; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
                 int bigByte = static_cast < char > (datas[i]);                //this carries the int's sign
                 int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
                 float signalValue = -100;                                   // Could be neg or pos
@@ -171,6 +174,16 @@ void SerialPortThread::sendDataToGUISlot() {
                 signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
                 signalValue = signalValue/10;
                 msg += QString::number(signalValue) + ",";
+                store_I = i;
+            }
+            // Parsing 4 byte UTC timestamp section, needed store_I for this;
+            long UTC_time_seconds = 0;
+            QByteArray UTC;
+            int z = 0;
+            for (int i = store_I+2; i < datas.size(); i = i + 1) {
+                UTC += datas[i];
+                UTC_time_seconds += static_cast < unsigned char > (UTC[z]) <<(z*8);
+                z = z + 1;
             }
             sensors = msg.split(",");
             // qDebug() << sensors;
@@ -184,7 +197,7 @@ void SerialPortThread::sendDataToGUISlot() {
             QFile file(filename);
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
-                  stream << hour << ":" << minute << ":" << second << "." << milli << "\t";
+                  stream << UTC_time_seconds << "\t" << hour << ":" << minute << ":" << second << "." << milli << "\t";
                   for (QStringList::Iterator it = sensors.begin(); it != sensors.end(); ++it)
                                   stream << *it << "\t";
                   stream << "\n";

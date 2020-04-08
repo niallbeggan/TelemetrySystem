@@ -64,7 +64,7 @@ QTabBar {
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>3</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -1667,7 +1667,7 @@ QProgressBar::chunk {
       </widget>
       <widget class="QWidget" name="tab_5">
        <attribute name="title">
-        <string>Pedal Positions</string>
+        <string>Pedals</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_7">
         <item>
@@ -1718,7 +1718,7 @@ QProgressBar::chunk {
       </widget>
       <widget class="QWidget" name="tab_4">
        <attribute name="title">
-        <string>Motors</string>
+        <string>Motors and Steering</string>
        </attribute>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
@@ -1729,28 +1729,70 @@ QProgressBar::chunk {
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_7">
-           <item>
-            <widget class="QLabel" name="label">
+          <layout class="QGridLayout" name="gridLayout">
+           <item row="0" column="0">
+            <widget class="QLabel" name="pedalTabGraphTitleLabel_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimumSize">
               <size>
-               <width>0</width>
-               <height>30</height>
+               <width>160</width>
+               <height>0</height>
               </size>
              </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>30</height>
-              </size>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
              </property>
              <property name="text">
-              <string>MOTOR DIFFERENTIAL POWER</string>
+              <string>Motor differential power (Watts)</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="pedalTabGraphTitleLabel_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>160</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true"/>
+             </property>
+             <property name="text">
+              <string>Steering wheel  position (%)</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
             <widget class="QCustomPlot" name="motorDiffPower" native="true"/>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCustomPlot" name="steeringInputGraph" native="true"/>
            </item>
           </layout>
          </widget>
@@ -1770,17 +1812,30 @@ QProgressBar::chunk {
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_14">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
            <item>
-            <widget class="QLabel" name="suspensionTabFrontLeftLabel">
+            <widget class="QLabel" name="pedalTabGraphTitleLabel_4">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>160</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">font: 75 12pt &quot;Nirmala UI&quot;;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Front left suspension</string>
@@ -2021,15 +2076,28 @@ QProgressBar::chunk {
             </widget>
            </item>
            <item>
-            <widget class="QLabel" name="suspensionTabRearLeftLabel">
+            <widget class="QLabel" name="pedalTabGraphTitleLabel_5">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>160</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">font: 75 12pt &quot;Nirmala UI&quot;;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Rear left suspension</string>
@@ -2050,17 +2118,30 @@ QProgressBar::chunk {
           <property name="frameShadow">
            <enum>QFrame::Raised</enum>
           </property>
-          <layout class="QVBoxLayout" name="verticalLayout_13">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
-            <widget class="QLabel" name="suspensionTabFrontRightLabel">
+            <widget class="QLabel" name="pedalTabGraphTitleLabel_6">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>160</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">font: 75 12pt &quot;Nirmala UI&quot;;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Front right suspension</string>
@@ -2071,15 +2152,28 @@ QProgressBar::chunk {
             <widget class="QCustomPlot" name="suspensionTabFrontRightGraph" native="true"/>
            </item>
            <item>
-            <widget class="QLabel" name="suspensionTabRearRightLabel">
+            <widget class="QLabel" name="pedalTabGraphTitleLabel_7">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>160</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>14</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
              <property name="styleSheet">
-              <string notr="true">font: 75 12pt &quot;Nirmala UI&quot;;</string>
+              <string notr="true"/>
              </property>
              <property name="text">
               <string>Rear right suspension</string>

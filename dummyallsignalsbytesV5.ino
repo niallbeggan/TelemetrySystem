@@ -4,6 +4,7 @@ void setup() {
 }
 
 String replyIf1 = "0";
+long UTCtimeStamp = 0;
 
 //####################################################
 // Initialise all signals.
@@ -64,6 +65,7 @@ void loop() {
   sendSerialAsTwoBytes(suspensionsFrontRight15);
   sendSerialAsTwoBytes(suspensionsRearLeft16);
   sendSerialAsTwoBytes(suspensionsRearRight17);
+  sendTimestampOverSerialAs4Bytes();
 
   replyIf1 = "0"; // dont reply again until next request
  }
@@ -75,6 +77,16 @@ void sendSerialAsTwoBytes(float value) {
   byte big = (byte) ((decimalValue >> 8) & 0xFF);
   Serial.write(big);
   Serial.write(small);
+}
+
+void sendTimestampOverSerialAs4Bytes() {
+  UTCtimeStamp = UTCtimeStamp + 1; // Seconds accuracy for now
+  
+  byte b[4];
+  for (int i=0; i<4; i++) {
+    b[i]=((UTCtimeStamp>>(i*8)) & 0xff); //extract the right-most byte of the shifted variable
+    Serial.write(b[i]);
+  }
 }
 
 void generateDummyValues() { // Generates dummy data for example & sys testing
@@ -129,9 +141,8 @@ void generateDummyValues() { // Generates dummy data for example & sys testing
   //
   leftMotorCurrent9 = round(bmsCurrent5/2);
   //
-  float x = random(1, 30);
-  rightMotorCurrent10 = round((bmsCurrent5/2) + x);
-  //further signals
+  rightMotorCurrent10 = round((bmsCurrent5/2) + (acceleratorPedalPosition12/2) - 25);
+  // further signals
   acceleratorPedalPosition12 = carSpeed3;
   //
   if(acceleratorPedalPosition12 == 0) {
@@ -150,4 +161,6 @@ void generateDummyValues() { // Generates dummy data for example & sys testing
   suspensionsRearRight17 = count%100;
   //
   powerkW6 = (bmsVoltage4 * bmsCurrent5)/1000;
+  //
+  steeringInput11 = -(acceleratorPedalPosition12-50);
  }

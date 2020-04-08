@@ -33,7 +33,7 @@ public:
     void updateMainTab(double temp, double voltage, double speed, double power);
 
     // Graphs
-    void clearData();
+    void clearData(QVector <QVector<double>> &plotVectors);
     void addPointsToGraph(QVector<QVector<double>> &graph, double x, double y);
     void plotGraphs();
 
@@ -63,6 +63,7 @@ public:
                                    double rightMotorVoltage,
                                    double steeringInput);
     void motorDifferentialPlot();
+    void steeringInputPlot();
 
 private slots:
     void scanSerialPorts();
@@ -77,10 +78,7 @@ private slots:
     void showMessageBox(int type);
 private:
     Ui::MainWindow *ui;
-    QVector <double> suspensionLeftFrontX, suspensionLeftFrontY;
-    QVector <double> suspensionRightFrontX, suspensionRightFrontY;
-    QVector <double> suspensionLeftRearX, suspensionLeftRearY;
-    QVector <double> suspensionRightRearX, suspensionRightRearY;
+    QVector <double> suspensionLeftFrontX, suspensionLeftFrontY; // Need to remove this its a terrible solution
 
     //QVector of double QVectors, one for each suspension graph
     QVector <QVector<double>> suspensionLeftFront;
@@ -99,8 +97,10 @@ private:
     QVector <QVector<double>> brakePedal;
     QVector <QVector<double>> acceleratorPedal;
 
-    // Motor plots
+    // Motor plot
     QVector <QVector<double>> motorDifferentialPower;
+    // Steering plot
+    QVector <QVector<double>> steeringInputPercent;
 
     // Running time
     QElapsedTimer runningTime;
