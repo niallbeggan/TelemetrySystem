@@ -18,6 +18,7 @@
 #define SUSPENSION_FRONT_RIGHT sensors[14]
 #define SUSPENSION_REAR_LEFT sensors[15]
 #define SUSPENSION_REAR_RIGHT sensors[16]
+#define NO_OF_SATELLITES sensors[17]
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -31,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     MainWindow::setWindowTitle("TUD Formula Student Telemetry");
     setWindowIcon(QIcon(":/TUD_Logo.PNG"));
+
+    QCoreApplication::setApplicationName("TUD Formula Student Telemetry"); // For log files location
 
     connect(this, SIGNAL(startComms()), thread, SLOT(startComms()));
     connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)));
@@ -268,7 +271,7 @@ void MainWindow::showMessageBox(int type) {
 
 void MainWindow::updateGUI(QStringList sensors) {
     //QApplication::processEvents(); // Careful with this.
-    if(sensors.length() > 17) {
+    if(sensors.length() > 18) {
         // qDebug() << sensors;
 
         // Suspension
@@ -286,7 +289,7 @@ void MainWindow::updateGUI(QStringList sensors) {
         plotBatteryGraphs();
 
         // Main Tab
-        updateMainTab(BMSTEMPERATURE.toDouble(), BMSVOLTAGE.toDouble(), CARSPEED.toDouble(), POWER_KW.toDouble());
+        updateMainTab(BMSTEMPERATURE.toDouble(), BMSVOLTAGE.toDouble(), CARSPEED.toDouble(), POWER_KW.toDouble(), NO_OF_SATELLITES.toInt());
 
         // Pedal positions tab
         updatePedalTab(BRAKE_PEDAL_POSITION, ACCELERATOR_PEDAL_POSITION);
@@ -333,6 +336,7 @@ void MainWindow::showEndComms() {
 
 void MainWindow::on_endComms_clicked() { // Tells the serial port thread to stop the timer
     emit closeComms();
+    ui->gpsStatusLabel->setText("GPS STATUS:"); // This could be added to a function
     clearComboBox();
 }
 
@@ -393,17 +397,29 @@ void MainWindow::updateMainRunningTime() {
     emit timestamp(millis, secs, mins, hours);
 }
 
+void MainWindow::updateMainGPSStatus(int noOfSatellites) {
+    if(noOfSatellites < 4)
+        ui->gpsStatusLabel->setText("GPS STATUS: Connecting");
+    if(noOfSatellites == 4)
+        ui->gpsStatusLabel->setText("GPS STATUS: Weak signal");
+    if(noOfSatellites == 5)
+        ui->gpsStatusLabel->setText("GPS STATUS: Ok signal");
+    if(noOfSatellites > 5)
+        ui->gpsStatusLabel->setText("GPS STATUS: Good signal");
+}
+
 void MainWindow::updateMainPower(int power) {
   ui->Main_Power_Gauge->setValue(power);
 }
 
-void MainWindow::updateMainTab(double temp, double voltage, double speed, double power) { // Cant display decimal places
+void MainWindow::updateMainTab(double temp, double voltage, double speed, double power,int noOfSatellites) { // Cant display decimal places
     updateMainTemp(temp);
     updateMainVoltage(voltage);
     updateMainSpeed(speed);
     updateMainRunningTime();
     updateMainPower(power);
     updateMainRunningTime();
+    updateMainGPSStatus(noOfSatellites);
 }
 
 //********************** Suspension functions **********************//

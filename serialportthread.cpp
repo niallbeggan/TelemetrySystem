@@ -1,13 +1,17 @@
 #include "serialportthread.h"
+#include <QDesktopServices>
+#include <QStandardPaths>
 
 #define REQUEST_TIME_MS 150
-#define WAIT_FOR_REPLY_TIME 5
+#define WAIT_FOR_REPLY_TIME 50
 
 SerialPortThread::SerialPortThread() {
     portNumber = ""; // Initiliase variables
     serialErrorTimeoutCount = 0;
     TelemSerialPort = NULL;
     connect(this, SIGNAL(startTelem()), this, SLOT(telemRequestDataTimer()));
+
+    QString dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); // Log files created here
 
     QString time_format = "yyyy_MM_dd_HH-mm-ss";
     QDateTime a = QDateTime::currentDateTime();
@@ -16,6 +20,9 @@ SerialPortThread::SerialPortThread() {
     QString telem = "_Telemetry_Data.txt";
 
     filename = as + telem;
+    qDebug() << "Filename: " << filename;
+    filename = dataPath + "/" + filename;
+    qDebug() << "Filename: " << filename;
     requestTimer = new QTimer(this);
     connect(requestTimer, SIGNAL(timeout()), SLOT(sendDataToGUISlot()));
     QFile file(filename);
@@ -187,10 +194,10 @@ void SerialPortThread::sendDataToGUISlot() {
             }
             sensors = msg.split(",");
             // qDebug() << sensors;
-            if(sensors.length() > 17) //Full msg received
+            if(sensors.length() > 18) //Full msg received
                 emit sendDataToGUI(sensors);
             else {
-                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100";
+                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100","-100";
                 sensors = msg.split(",");
                 emit sendDataToGUI(sensors); // Should this be shown?
             }

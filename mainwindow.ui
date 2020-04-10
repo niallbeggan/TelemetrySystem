@@ -120,20 +120,20 @@ background-color: rgb(0, 0, 0);</string>
            <item>
             <widget class="QFrame" name="frame_3">
              <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                <horstretch>0</horstretch>
                <verstretch>0</verstretch>
               </sizepolicy>
              </property>
              <property name="minimumSize">
               <size>
-               <width>631</width>
+               <width>600</width>
                <height>68</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>631</width>
+               <width>16777215</width>
                <height>68</height>
               </size>
              </property>
@@ -147,6 +147,21 @@ background-color: rgb(0, 0, 0);</string>
               <enum>QFrame::Raised</enum>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_3">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>5</number>
+              </property>
+              <property name="topMargin">
+               <number>2</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
                <widget class="QFrame" name="frame">
                 <property name="sizePolicy">
@@ -173,6 +188,54 @@ background-color: rgb(0, 0, 0);</string>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
+                <widget class="QPushButton" name="startComms">
+                 <property name="geometry">
+                  <rect>
+                   <x>-10</x>
+                   <y>0</y>
+                   <width>200</width>
+                   <height>45</height>
+                  </rect>
+                 </property>
+                 <property name="sizePolicy">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                   <horstretch>0</horstretch>
+                   <verstretch>0</verstretch>
+                  </sizepolicy>
+                 </property>
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>45</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>200</width>
+                   <height>45</height>
+                  </size>
+                 </property>
+                 <property name="font">
+                  <font>
+                   <family>Arial Black</family>
+                   <pointsize>10</pointsize>
+                   <weight>10</weight>
+                   <italic>false</italic>
+                   <bold>false</bold>
+                  </font>
+                 </property>
+                 <property name="cursor">
+                  <cursorShape>ArrowCursor</cursorShape>
+                 </property>
+                 <property name="styleSheet">
+                  <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(0, 192, 0, 255));
+font: 87 10pt &quot;Arial Black&quot; ;
+border: 1px solid black;</string>
+                 </property>
+                 <property name="text">
+                  <string>START COMMS</string>
+                 </property>
+                </widget>
                 <widget class="QPushButton" name="endComms">
                  <property name="geometry">
                   <rect>
@@ -201,7 +264,7 @@ background-color: rgb(0, 0, 0);</string>
                   </size>
                  </property>
                  <property name="styleSheet">
-                  <string notr="true">font: 87 16pt &quot;Arial Black&quot; ;
+                  <string notr="true">font: 87 10pt &quot;Arial Black&quot; ;
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(255, 0, 0, 255));
 border: 1px solid black;</string>
                  </property>
@@ -209,45 +272,8 @@ border: 1px solid black;</string>
                   <string>STOP COMMS</string>
                  </property>
                 </widget>
-                <widget class="QPushButton" name="startComms">
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>0</y>
-                   <width>190</width>
-                   <height>45</height>
-                  </rect>
-                 </property>
-                 <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                   <horstretch>0</horstretch>
-                   <verstretch>0</verstretch>
-                  </sizepolicy>
-                 </property>
-                 <property name="minimumSize">
-                  <size>
-                   <width>190</width>
-                   <height>45</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>190</width>
-                   <height>45</height>
-                  </size>
-                 </property>
-                 <property name="cursor">
-                  <cursorShape>ArrowCursor</cursorShape>
-                 </property>
-                 <property name="styleSheet">
-                  <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:1 rgba(0, 192, 0, 255));
-font: 87 16pt &quot;Arial Black&quot; ;
-border: 1px solid black;</string>
-                 </property>
-                 <property name="text">
-                  <string>START COMMS</string>
-                 </property>
-                </widget>
+                <zorder>endComms</zorder>
+                <zorder>startComms</zorder>
                </widget>
               </item>
               <item>
@@ -260,19 +286,19 @@ border: 1px solid black;</string>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>0</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>120</width>
                   <height>16777215</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>12</pointsize>
+                  <pointsize>8</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -282,6 +308,9 @@ border: 1px solid black;</string>
                 </property>
                 <property name="text">
                  <string>USB PORT:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -350,29 +379,12 @@ border: 1px solid black;</string>
                 </property>
                </widget>
               </item>
+              <item>
+               <widget class="QWidget" name="widget_2" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_12"/>
+               </widget>
+              </item>
              </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QFrame" name="frame_11">
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>68</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>16777215</width>
-               <height>68</height>
-              </size>
-             </property>
-             <property name="frameShape">
-              <enum>QFrame::StyledPanel</enum>
-             </property>
-             <property name="frameShadow">
-              <enum>QFrame::Raised</enum>
-             </property>
             </widget>
            </item>
            <item>
@@ -435,19 +447,19 @@ border: 1px solid black;</string>
                 </property>
                 <property name="minimumSize">
                  <size>
-                  <width>80</width>
+                  <width>100</width>
                   <height>0</height>
                  </size>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>90</width>
+                  <width>100</width>
                   <height>16777215</height>
                  </size>
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>12</pointsize>
+                  <pointsize>8</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -457,6 +469,9 @@ border: 1px solid black;</string>
                 </property>
                 <property name="text">
                  <string>RUN TIME:</string>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                 </property>
                </widget>
               </item>
@@ -638,6 +653,47 @@ color: rgb(0, 0, 0);</string>
          </widget>
         </item>
         <item>
+         <widget class="QLabel" name="gpsStatusLabel">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>120</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>60</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>6</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+          <property name="text">
+           <string>GPS STATUS:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+          </property>
+          <property name="margin">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QFrame" name="frame_4">
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -678,19 +734,38 @@ color: rgb(0, 0, 0);</string>
                 <property name="frameShadow">
                  <enum>QFrame::Raised</enum>
                 </property>
+                <layout class="QVBoxLayout" name="verticalLayout_11"/>
                </widget>
               </item>
               <item>
-               <widget class="QGauge" name="Main_Power_Gauge" native="true"/>
+               <widget class="QGauge" name="Main_Power_Gauge" native="true">
+                <property name="font">
+                 <font>
+                  <pointsize>5</pointsize>
+                 </font>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
            </item>
            <item>
-            <widget class="QGauge" name="Main_Battery_Temp_Gauge" native="true"/>
+            <widget class="QGauge" name="Main_Battery_Temp_Gauge" native="true">
+             <property name="font">
+              <font>
+               <pointsize>5</pointsize>
+              </font>
+             </property>
+            </widget>
            </item>
            <item>
-            <widget class="QGauge" name="Main_Battery_Voltage_Gauge" native="true"/>
+            <widget class="QGauge" name="Main_Battery_Voltage_Gauge" native="true">
+             <property name="font">
+              <font>
+               <pointsize>5</pointsize>
+              </font>
+             </property>
+            </widget>
            </item>
            <item>
             <widget class="QFrame" name="frame_9">
@@ -712,7 +787,13 @@ color: rgb(0, 0, 0);</string>
                </widget>
               </item>
               <item>
-               <widget class="QGauge" name="Main_Speed_Gauge" native="true"/>
+               <widget class="QGauge" name="Main_Speed_Gauge" native="true">
+                <property name="font">
+                 <font>
+                  <pointsize>5</pointsize>
+                 </font>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -831,7 +912,7 @@ color: rgb(0, 0, 0);</string>
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>14</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1118,6 +1199,22 @@ QProgressBar::chunk {
                <number>0</number>
               </property>
               <item>
+               <widget class="QWidget" name="widget" native="true">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
                <widget class="QFrame" name="batteryTabTempFrame">
                 <property name="frameShape">
                  <enum>QFrame::StyledPanel</enum>
@@ -1142,16 +1239,22 @@ QProgressBar::chunk {
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
+                 </property>
+                 <property name="layoutDirection">
+                  <enum>Qt::LeftToRight</enum>
                  </property>
                  <property name="styleSheet">
                   <string notr="true"/>
                  </property>
                  <property name="text">
                   <string>Temp (°C)</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                 <widget class="QLCDNumber" name="batteryTabTempLCD">
@@ -1216,7 +1319,7 @@ QProgressBar::chunk {
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1226,6 +1329,9 @@ QProgressBar::chunk {
                  </property>
                  <property name="text">
                   <string>Charge (%)</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </widget>
@@ -1274,7 +1380,7 @@ QProgressBar::chunk {
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1284,6 +1390,9 @@ QProgressBar::chunk {
                  </property>
                  <property name="text">
                   <string>Voltage (Volts)</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </widget>
@@ -1332,7 +1441,7 @@ QProgressBar::chunk {
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1342,6 +1451,9 @@ QProgressBar::chunk {
                  </property>
                  <property name="text">
                   <string>Current (Amps)</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </widget>
@@ -1390,7 +1502,7 @@ QProgressBar::chunk {
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1400,6 +1512,9 @@ QProgressBar::chunk {
                  </property>
                  <property name="text">
                   <string>Lowest Voltage:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </widget>
@@ -1448,7 +1563,7 @@ QProgressBar::chunk {
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>14</pointsize>
+                   <pointsize>10</pointsize>
                    <weight>75</weight>
                    <bold>true</bold>
                   </font>
@@ -1457,7 +1572,10 @@ QProgressBar::chunk {
                   <string notr="true"/>
                  </property>
                  <property name="text">
-                  <string>Max Current draw:</string>
+                  <string>Max Current:</string>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
                  </property>
                 </widget>
                </widget>
@@ -1529,7 +1647,7 @@ QProgressBar::chunk {
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>14</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1585,7 +1703,7 @@ QProgressBar::chunk {
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>14</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1641,7 +1759,7 @@ QProgressBar::chunk {
                 </property>
                 <property name="font">
                  <font>
-                  <pointsize>14</pointsize>
+                  <pointsize>10</pointsize>
                   <weight>75</weight>
                   <bold>true</bold>
                  </font>
@@ -1695,7 +1813,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -1746,7 +1864,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -1775,7 +1893,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -1829,7 +1947,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -2091,7 +2209,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -2135,7 +2253,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>
@@ -2167,7 +2285,7 @@ QProgressBar::chunk {
              </property>
              <property name="font">
               <font>
-               <pointsize>14</pointsize>
+               <pointsize>10</pointsize>
                <weight>75</weight>
                <bold>true</bold>
               </font>

@@ -29,8 +29,9 @@ public:
     void updateMainSpeed(int speed);
     void updateMainPower(int power);
     void updateMainRunningTime();
+    void updateMainGPSStatus(int noOfSatellites);
 
-    void updateMainTab(double temp, double voltage, double speed, double power);
+    void updateMainTab(double temp, double voltage, double speed, double power, int noOfSatellites);
 
     // Graphs
     void clearData(QVector <QVector<double>> &plotVectors);
