@@ -13,7 +13,7 @@ SerialPortThread::SerialPortThread() {
 
     QString dataPath = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation); // Log files created here
 
-    QString time_format = "yyyy_MM_dd_HH-mm-ss";
+    QString time_format = "yyyy.MM.dd_HH-mm-ss";
     QDateTime a = QDateTime::currentDateTime();
     QString as = a.toString(time_format);
     qDebug() << as;

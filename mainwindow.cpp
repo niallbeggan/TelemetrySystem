@@ -20,6 +20,8 @@
 #define SUSPENSION_REAR_RIGHT sensors[16]
 #define NO_OF_SATELLITES sensors[17]
 
+#define BATTERY_TEMP_LIMIT 60
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -55,6 +57,12 @@ MainWindow::MainWindow(QWidget *parent)
     ui->refreshPorts->setIconSize(QSize(28,28));
     ui->refreshPorts->setIcon(ButtonIcon);
 
+    QPen redPen;
+    redPen.setWidth(1);
+    redPen.setColor("red");
+
+    ui->batteryTabStateOfChargeProgressBar->setValue(0);
+
     // Main tab Gauges setup
     ui->Main_Battery_Temp_Gauge->setMinValue(0);
     ui->Main_Battery_Temp_Gauge->setMaxValue(100);
@@ -68,7 +76,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Battery_Voltage_Gauge->setMaxValue(80); // 17 cells, this would be 4.3 volts per cell, overcharged
     ui->Main_Battery_Voltage_Gauge->setThresholdEnabled(false);
     ui->Main_Battery_Voltage_Gauge->setValue(0);
-    ui->Main_Battery_Voltage_Gauge->setLabel("Volts");
+    ui->Main_Battery_Voltage_Gauge->setLabel("Voltage");
     ui->Main_Battery_Voltage_Gauge->setUnits("V");
     ui->Main_Battery_Voltage_Gauge->setSteps(30);
 
@@ -111,12 +119,18 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabFrontLeftGraph->yAxis->setRange(0, 100);
     ui->suspensionTabFrontLeftGraph->update();
 
+    ui->suspensionTabFrontLeftGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
+    ui->suspensionTabFrontLeftGraph->xAxis->setLabel("Time (samples)");
+
     ui->suspensionTabRearLeftGraph->addGraph();
     ui->suspensionTabRearLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabRearLeftGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->suspensionTabRearLeftGraph->xAxis->setRange(0, 300);
     ui->suspensionTabRearLeftGraph->yAxis->setRange(0, 100);
     ui->suspensionTabRearLeftGraph->update();
+
+    ui->suspensionTabRearLeftGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
+    ui->suspensionTabRearLeftGraph->xAxis->setLabel("Time (samples)");
 
     ui->suspensionTabFrontRightGraph->addGraph();
     ui->suspensionTabFrontRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -125,6 +139,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabFrontRightGraph->yAxis->setRange(0, 100);
     ui->suspensionTabFrontRightGraph->update();
 
+    ui->suspensionTabFrontRightGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
+    ui->suspensionTabFrontRightGraph->xAxis->setLabel("Time (samples)");
+
     ui->suspensionTabRearRightGraph->addGraph();
     ui->suspensionTabRearRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->suspensionTabRearRightGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
@@ -132,10 +149,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabRearRightGraph->yAxis->setRange(0, 100);
     ui->suspensionTabRearRightGraph->update();
 
+    ui->suspensionTabRearRightGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
+    ui->suspensionTabRearRightGraph->xAxis->setLabel("Time (samples)");
+
 //    ui->frontLeftPlot->setBackground(Qt::black);
 //    //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
-//    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white); // Needed if i go with black backgroud. hopefully
-//    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white)); // i will be able to switch colours live time by end of project
+//    ui->frontLeftPlot->xAxis->setTickLabelColor(Qt::white); // Needed if i go with black backgroud.
+//    ui->frontLeftPlot->xAxis->setBasePen(QPen(Qt::white)); //
 //    ui->frontLeftPlot->xAxis->setLabelColor(Qt::white);
 //    ui->frontLeftPlot->xAxis->setTickPen(QPen(Qt::white));
 //    ui->frontLeftPlot->xAxis->setSubTickPen(QPen(Qt::white));
@@ -152,6 +172,9 @@ MainWindow::MainWindow(QWidget *parent)
     batteryTemp.append(suspensionLeftFrontX);
     batteryTemp.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty... but need to initialise graph vector somehow
 
+    batteryTempLimit.append(suspensionLeftFrontX);
+    batteryTempLimit.append(suspensionLeftFrontY);
+
     batteryVoltage.append(suspensionLeftFrontX);
     batteryVoltage.append(suspensionLeftFrontY);
 
@@ -164,6 +187,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabTempGraph->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
     ui->batteryTabTempGraph->xAxis->setRange(0, 300);
     ui->batteryTabTempGraph->yAxis->setRange(0, 100);
+    ui->batteryTabTempGraph->yAxis->setLabel("Temperature (Degrees C)");
+    ui->batteryTabTempGraph->xAxis->setLabel("Time (samples)");
+
+    ui->batteryTabTempGraph->addGraph();
+    ui->batteryTabTempGraph->graph(1)->setPen(redPen);
+    ui->batteryTabTempGraph->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
+    ui->batteryTabTempGraph->graph(1)->setLineStyle(QCPGraph::lsLine);
     ui->batteryTabTempGraph->update();
 
     ui->batteryTabVoltageGraph->addGraph();
@@ -173,6 +203,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabVoltageGraph->xAxis->setRange(0, 300);
     ui->batteryTabVoltageGraph->yAxis->setRange(0, 80);
     ui->batteryTabVoltageGraph->update();
+    ui->batteryTabVoltageGraph->yAxis->setLabel("Battery voltage (V)");
+    ui->batteryTabVoltageGraph->xAxis->setLabel("Time (samples)");
 
     ui->batteryTabCurrentGraph->addGraph();
     ui->batteryTabCurrentGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -181,6 +213,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabCurrentGraph->xAxis->setRange(0, 300);
     ui->batteryTabCurrentGraph->yAxis->setRange(0, 500);
     ui->batteryTabCurrentGraph->update();
+    ui->batteryTabCurrentGraph->yAxis->setLabel("Battery current (A)");
+    ui->batteryTabCurrentGraph->xAxis->setLabel("Time (samples)");
 
     // Pedal positions tab
     brakePedal.append(suspensionLeftFrontX);
@@ -202,9 +236,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->yAxis->setRange(0, 100);
     ui->pedalTabGraph->update();
 
-    QPen redPen;
-    redPen.setWidth(1);
-    redPen.setColor("red");
+    ui->pedalTabGraph->yAxis->setLabel("Pedal position (%) (100% is fully pressed)");
+    ui->pedalTabGraph->xAxis->setLabel("Time (samples)");
+
     ui->pedalTabGraph->graph(0)->setPen(redPen);
     ui->pedalTabGraph->graph(0)->setName("Brake pedal"); // Legend
     ui->pedalTabGraph->graph(1)->setName("Accelerator pedal");
@@ -226,6 +260,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->motorDiffPower->yAxis->setRange(-1000, 1000);
     ui->motorDiffPower->update();
 
+    ui->motorDiffPower->xAxis->setLabel("Difference in power between motors (kW) (negative means left motor has more power)");
+    ui->motorDiffPower->yAxis->setLabel("Time (samples)");
+
     // Steering Input graph
     steeringInputPercent.append(suspensionLeftFrontX);
     steeringInputPercent.append(suspensionLeftFrontY);
@@ -242,6 +279,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->steeringInputGraph->xAxis->setRange(0, 300);
     ui->steeringInputGraph->yAxis->setRange(-100, 100);
     ui->steeringInputGraph->update();
+
+    ui->steeringInputGraph->xAxis->setLabel("Steering position (%) (negative means left)");
+    ui->steeringInputGraph->yAxis->setLabel("Time (samples)");
 }
 
 MainWindow::~MainWindow() {
@@ -284,6 +324,7 @@ void MainWindow::updateGUI(QStringList sensors) {
         // Battery
         updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
         addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, BMSTEMPERATURE.toDouble());
+        addPointsToGraph(batteryTempLimit, batteryTempLimit[0].length()+1, BATTERY_TEMP_LIMIT); // Might remove,red limit line
         addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, BMSCURRENT.toDouble());
         addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, BMSVOLTAGE.toDouble());
         plotBatteryGraphs();
@@ -541,6 +582,7 @@ void MainWindow::updateBatteryTab(QString voltage, QString current, QString temp
 
 void MainWindow::batteryTempPlot() {
     ui->batteryTabTempGraph->graph(0)->setData(batteryTemp[0], batteryTemp[1]);
+    ui->batteryTabTempGraph->graph(1)->setData(batteryTempLimit[0], batteryTempLimit[1]);
     ui->batteryTabTempGraph->replot();
     double startOfXAxis = 0;
     if(batteryTemp[0].length() == 0) {
@@ -688,7 +730,7 @@ void MainWindow::steeringInputPlot() {
     ui->steeringInputGraph->graph(0)->setData(steeringInputPercent[1], steeringInputPercent[0]);
 
     int pxy = ui->steeringInputGraph->xAxis->coordToPixel(0);
-    ui->steeringInputGraph->yAxis->setOffset(ui->steeringInputGraph->axisRect()->left()-pxy); // Internet code
+    ui->steeringInputGraph->yAxis->setOffset(ui->steeringInputGraph->axisRect()->left()-pxy);
 
     ui->steeringInputGraph->replot();
     double startOfXAxis = 0;
@@ -698,11 +740,6 @@ void MainWindow::steeringInputPlot() {
     else
         startOfXAxis = steeringInputPercent[1][steeringInputPercent[1].length()-1];
     ui->steeringInputGraph->yAxis->setRange(startOfXAxis,(startOfXAxis-1000));
-    double min = *std::min_element(steeringInputPercent[0].constBegin(), steeringInputPercent[0].constEnd());
-    if(min == -100) {
-        min = -100;
-    }
-    double max = *std::max_element(steeringInputPercent[0].constBegin(), steeringInputPercent[0].constEnd());
-    ui->steeringInputGraph->xAxis->setRange(min-1, max+1);
+    ui->steeringInputGraph->xAxis->setRange(-55, 55);
     ui->steeringInputGraph->update();
 }

@@ -102,6 +102,7 @@ void QGauge::setValue(double value)
         {
             QString style=QString("background-color: transparent; color: rgb(200,0,0);");
             m_lcd->setStyleSheet(style);
+            setForeground(QColor(255, 0, 0)); //niallbeggan added this to change gauge white when below threshold
         }
         else
         {
@@ -111,6 +112,7 @@ void QGauge::setValue(double value)
             b=foreground().blue();
             QString style=QString("background-color: transparent; color: rgb(%1,%2,%3);").arg(r).arg(g).arg(b);
             m_lcd->setStyleSheet(style);
+            setForeground(QColor(255, 255, 255)); //niallbeggan added this to change gauge red when above threshold
         }
     }
     else

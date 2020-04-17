@@ -89,6 +89,7 @@ private:
 
     // Battery plots
     QVector <QVector<double>> batteryTemp;
+    QVector <QVector<double>> batteryTempLimit;
     QVector <QVector<double>> batteryVoltage;
     QVector <QVector<double>> batteryCurrent;
     double highestCurrent;
