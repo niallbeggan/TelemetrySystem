@@ -33,7 +33,8 @@ MainWindow::MainWindow(QWidget *parent)
     thread1->start();
 
     MainWindow::setWindowTitle("TUD Formula Student Telemetry");
-    setWindowIcon(QIcon(":/TUD_Logo.PNG"));
+    //setWindowIcon(QIcon(":/TUD_Logo.PNG"));
+    setWindowIcon(QIcon(":/TUD.ico"));
 
     QCoreApplication::setApplicationName("TUD Formula Student Telemetry"); // For log files location
 
@@ -85,7 +86,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Speed_Gauge->setThresholdEnabled(false);
     ui->Main_Speed_Gauge->setValue(0);
     ui->Main_Speed_Gauge->setLabel("Speed");
-    ui->Main_Speed_Gauge->setUnits("Km/h");
+    ui->Main_Speed_Gauge->setUnits("km/h");
     ui->Main_Speed_Gauge->setCoverGlassEnabled(true);
     ui->Main_Speed_Gauge->setSteps(30);
     ui->Main_Speed_Gauge->setDigitCount(3);
@@ -256,8 +257,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->motorDiffPower->graph(0)->setKeyAxis(ui->motorDiffPower->yAxis);
     ui->motorDiffPower->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->motorDiffPower->graph(0)->setBrush(QBrush(QColor(0, 0, 255, 30)));
-    ui->motorDiffPower->xAxis->setRange(0, 300);
-    ui->motorDiffPower->yAxis->setRange(-1000, 1000);
+    ui->motorDiffPower->xAxis->setRange(-1000, 1000);
+    ui->motorDiffPower->yAxis->setRange(0, 500);
     ui->motorDiffPower->update();
 
     ui->motorDiffPower->xAxis->setLabel("Difference in power between motors (kW) (negative means left motor has more power)");
@@ -276,8 +277,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->steeringInputGraph->graph(0)->setKeyAxis(ui->steeringInputGraph->yAxis);
     ui->steeringInputGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
     ui->steeringInputGraph->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 30)));
-    ui->steeringInputGraph->xAxis->setRange(0, 300);
-    ui->steeringInputGraph->yAxis->setRange(-100, 100);
+    ui->steeringInputGraph->xAxis->setRange(-55, 55);
+    ui->steeringInputGraph->yAxis->setRange(0, 500);
     ui->steeringInputGraph->update();
 
     ui->steeringInputGraph->xAxis->setLabel("Steering position (%) (negative means left)");
@@ -440,13 +441,13 @@ void MainWindow::updateMainRunningTime() {
 
 void MainWindow::updateMainGPSStatus(int noOfSatellites) {
     if(noOfSatellites < 4)
-        ui->gpsStatusLabel->setText("GPS STATUS: Connecting");
+        ui->gpsStatusLabel->setText("GPS STATUS: CONNECTING");
     if(noOfSatellites == 4)
-        ui->gpsStatusLabel->setText("GPS STATUS: Weak signal");
+        ui->gpsStatusLabel->setText("GPS STATUS: WEAK SIGNAL");
     if(noOfSatellites == 5)
-        ui->gpsStatusLabel->setText("GPS STATUS: Ok signal");
+        ui->gpsStatusLabel->setText("GPS STATUS: OK SIGNAL");
     if(noOfSatellites > 5)
-        ui->gpsStatusLabel->setText("GPS STATUS: Good signal");
+        ui->gpsStatusLabel->setText("GPS STATUS: GOOD SIGNAL");
 }
 
 void MainWindow::updateMainPower(int power) {
@@ -713,16 +714,24 @@ void MainWindow::motorDifferentialPlot() {
     ui->motorDiffPower->yAxis->setOffset(ui->motorDiffPower->axisRect()->left()-pxy); // Internet code
 
     ui->motorDiffPower->replot();
-    double startOfXAxis = 0;
-    if(motorDifferentialPower[1].length() < 1000) {
-        startOfXAxis = 1000;
+    double startOfYAxis = 0;
+    if(motorDifferentialPower[1].length() < 500) {
+        startOfYAxis = 500;
     }
     else
-        startOfXAxis = motorDifferentialPower[1][motorDifferentialPower[1].length()-1];
-    ui->motorDiffPower->yAxis->setRange(startOfXAxis,(startOfXAxis-1000));
+        startOfYAxis = motorDifferentialPower[1][motorDifferentialPower[1].length()-1];
+    ui->motorDiffPower->yAxis->setRange(startOfYAxis,(startOfYAxis-500));
     double min = *std::min_element(motorDifferentialPower[0].constBegin(), motorDifferentialPower[0].constEnd());
     double max = *std::max_element(motorDifferentialPower[0].constBegin(), motorDifferentialPower[0].constEnd());
-    ui->motorDiffPower->xAxis->setRange(min-1,max+1);
+    if(max < 1000)
+        max = 1000;
+    if(min > -1000)
+        min = -1000;
+    if((min*-1) > max)
+        max = min* -1;
+    else
+        min = max* -1;
+    ui->motorDiffPower->xAxis->setRange(min-100,max+100);
     ui->motorDiffPower->update();
 }
 
@@ -733,13 +742,13 @@ void MainWindow::steeringInputPlot() {
     ui->steeringInputGraph->yAxis->setOffset(ui->steeringInputGraph->axisRect()->left()-pxy);
 
     ui->steeringInputGraph->replot();
-    double startOfXAxis = 0;
-    if(steeringInputPercent[1].length() < 1000) {
-        startOfXAxis = 1000;
+    double startOfYAxis = 0;
+    if(steeringInputPercent[1].length() < 500) {
+        startOfYAxis = 500;
     }
     else
-        startOfXAxis = steeringInputPercent[1][steeringInputPercent[1].length()-1];
-    ui->steeringInputGraph->yAxis->setRange(startOfXAxis,(startOfXAxis-1000));
+        startOfYAxis = steeringInputPercent[1][steeringInputPercent[1].length()-1];
+    ui->steeringInputGraph->yAxis->setRange(startOfYAxis,(startOfYAxis-500));
     ui->steeringInputGraph->xAxis->setRange(-55, 55);
     ui->steeringInputGraph->update();
 }

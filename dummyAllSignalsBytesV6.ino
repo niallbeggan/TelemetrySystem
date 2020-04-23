@@ -141,9 +141,10 @@ void generateDummyValues() { // Generates dummy data for example & sys testing
   //
   rightMotorVoltage8 = bmsVoltage4 - 3;
   //
-  leftMotorCurrent9 = round(bmsCurrent5/2);
+  //leftMotorCurrent9 = round(bmsCurrent5/2);
+  leftMotorCurrent9 = 50*sin((count%100)/(100/(2*PI)));
   //
-  rightMotorCurrent10 = round((bmsCurrent5/2) + (acceleratorPedalPosition12/2) - 25);
+  rightMotorCurrent10 = 0;
   // further signals
   acceleratorPedalPosition12 = carSpeed3;
   //
@@ -164,14 +165,14 @@ void generateDummyValues() { // Generates dummy data for example & sys testing
   //
   powerkW6 = (bmsVoltage4 * bmsCurrent5)/1000;
   //
-  steeringInput11 = -(acceleratorPedalPosition12-50);
+  steeringInput11 = 50*sin((count%100)/(100/(2*PI)));
   //
-  if(count < 10)
+  if(count < 30)
     noOfSatellites = 0;
-  if(count > 10)
-    noOfSatellites = 4;
-  if(count > 20)
-    noOfSatellites = 5;
   if(count > 30)
+    noOfSatellites = 4;
+  if(count > 60)
+    noOfSatellites = 5;
+  if(count > 90)
     noOfSatellites = 6;
  }

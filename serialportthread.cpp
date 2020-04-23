@@ -106,8 +106,9 @@ void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
         err = 1;
     else
         err = 2;
-    if(serialErrorTimeoutCount > 9) // If stuck in loop, force shutdown. serialErrorTimeoutCount reset every time startComms clicked.
+    if(serialErrorTimeoutCount > 5) // If stuck in loop, force shutdown. serialErrorTimeoutCount reset every time startComms clicked.
         err = 2;
+
     switch (err) {
     case 1:
         // Don't do anything. This is sent whenever the port is actually opened properly. NOT AN ERROR.
@@ -172,7 +173,7 @@ void SerialPortThread::sendDataToGUISlot() {
             QThread::msleep(WAIT_FOR_REPLY_TIME);
             int store_I = 0; // Needed to parse UTC timestamp
             datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
-            for (int i = 0; i < datas.size()-5; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
+            for (int i = 0; i < datas.size()-7; i = i + 2) {                  // datas.size - 1 because we advance 2 bytes at a time.
                 int bigByte = static_cast < char > (datas[i]);                //this carries the int's sign
                 int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
                 float signalValue = -100;                                   // Could be neg or pos
@@ -184,27 +185,41 @@ void SerialPortThread::sendDataToGUISlot() {
                 store_I = i;
             }
             // Parsing 4 byte UTC timestamp section, needed store_I for this;
-            long UTC_time_seconds = 0;
+            double UTC_time_seconds = 0;
             QByteArray UTC;
             int z = 0;
-            for (int i = store_I+2; i < datas.size(); i = i + 1) {
+            for (int i = store_I+2; i < datas.size()-2; i = i + 1) {
                 UTC += datas[i];
                 UTC_time_seconds += static_cast < unsigned char > (UTC[z]) <<(z*8);
                 z = z + 1;
+                store_I = i;
+            }
+
+            double UTC_millis = 0;
+            for (int i = store_I; i < datas.size()-1; i = i + 1) {
+                qDebug() << "store_I: " << store_I;
+                qDebug() << "i: " << i;
+                qDebug() << "datas.size(): " << datas.size();
+                int bigByte = static_cast < char > (datas[i]);              // this carries the int's sign
+                int smallByte = static_cast < unsigned char > (datas[i+1]); // this doesnt
+                qDebug() << "bigByte: " << bigByte;
+                qDebug() << "smallByte: " << smallByte;
+                UTC_millis = (bigByte * 256) + smallByte;                  // Add small to big to get total value
+                UTC_millis = (UTC_millis/10); // Divide by ten to get milliseconds
             }
             sensors = msg.split(",");
-            // qDebug() << sensors;
+            qDebug() << sensors;
             if(sensors.length() > 18) //Full msg received
                 emit sendDataToGUI(sensors);
             else {
-                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100","-100";
+                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100";
                 sensors = msg.split(",");
                 emit sendDataToGUI(sensors); // Should this be shown?
             }
             QFile file(filename);
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
-                  stream << UTC_time_seconds << "\t" << hour << ":" << minute << ":" << second << "." << milli << "\t";
+                  stream << UTC_time_seconds << "." << UTC_millis << "\t" << hour << ":" << minute << ":" << second << "." << milli << "\t";
                   for (QStringList::Iterator it = sensors.begin(); it != sensors.end(); ++it)
                                   stream << *it << "\t";
                   stream << "\n";

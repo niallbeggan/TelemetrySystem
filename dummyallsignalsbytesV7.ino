@@ -5,6 +5,7 @@ void setup() {
 
 String replyIf1 = "0";
 long UTCtimeStamp = 0;
+int UTC_millis = 0;
 
 //####################################################
 // Initialise all signals.
@@ -30,6 +31,7 @@ float suspensionsFrontRight15 = 0;
 float suspensionsRearLeft16 = 0;
 float suspensionsRearRight17 = 0;
 
+int noOfSatellites = 0;
 //####################################################
 
 int count = 0; // just for dummySignals
@@ -65,7 +67,9 @@ void loop() {
   sendSerialAsTwoBytes(suspensionsFrontRight15);
   sendSerialAsTwoBytes(suspensionsRearLeft16);
   sendSerialAsTwoBytes(suspensionsRearRight17);
+  sendSerialAsTwoBytes(noOfSatellites);
   sendTimestampOverSerialAs4Bytes();
+  sendSerialAsTwoBytes(count%1000);
 
   replyIf1 = "0"; // dont reply again until next request
  }
@@ -139,9 +143,10 @@ void generateDummyValues() { // Generates dummy data for example & sys testing
   //
   rightMotorVoltage8 = bmsVoltage4 - 3;
   //
-  leftMotorCurrent9 = round(bmsCurrent5/2);
+  //leftMotorCurrent9 = round(bmsCurrent5/2);
+  leftMotorCurrent9 = 50*sin((count%100)/(100/(2*PI)));
   //
-  rightMotorCurrent10 = round((bmsCurrent5/2) + (acceleratorPedalPosition12/2) - 25);
+  rightMotorCurrent10 = 0;
   // further signals
   acceleratorPedalPosition12 = carSpeed3;
   //
@@ -162,5 +167,14 @@ void generateDummyValues() { // Generates dummy data for example & sys testing
   //
   powerkW6 = (bmsVoltage4 * bmsCurrent5)/1000;
   //
-  steeringInput11 = -(acceleratorPedalPosition12-50);
+  steeringInput11 = 50*sin((count%100)/(100/(2*PI)));
+  //
+  if(count < 30)
+    noOfSatellites = 0;
+  if(count > 30)
+    noOfSatellites = 4;
+  if(count > 60)
+    noOfSatellites = 5;
+  if(count > 90)
+    noOfSatellites = 6;
  }
