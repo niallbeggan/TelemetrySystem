@@ -33,21 +33,21 @@ MainWindow::MainWindow(QWidget *parent)
     thread1->start();
 
     MainWindow::setWindowTitle("TUD Formula Student Telemetry");
-    //setWindowIcon(QIcon(":/TUD_Logo.PNG"));
-    setWindowIcon(QIcon(":/TUD.ico"));
+    //setWindowIcon(QIcon(":/TUD_Logo.PNG")); // Official, but shit looking logo
+    setWindowIcon(QIcon(":/TUD.ico")); // DIY MS Paint logo converted to .ico file at icoconverter.com (choose 128p max)
 
     QCoreApplication::setApplicationName("TUD Formula Student Telemetry"); // For log files location
 
-    connect(this, SIGNAL(startComms()), thread, SLOT(startComms()));
-    connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)));
-    connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()));
-    connect(thread, SIGNAL(sendDataToGUI(QStringList)), this, SLOT(updateGUI(QStringList)));
-    connect(thread, SIGNAL(clearComboBox()), this, SLOT(clearComboBox()));
-    connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()));
-    connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()));
-    connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()));
-    connect(this, SIGNAL(timestamp(int, int, int, int)), thread, SLOT(updateTimestamp(int, int, int, int)));
-    connect(thread, SIGNAL(msgBoxSignal(int)), this, SLOT(showMessageBox(int)));
+    connect(this, SIGNAL(startComms()), thread, SLOT(startComms()), Qt::QueuedConnection);
+    connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)), Qt::QueuedConnection);
+    connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()), Qt::QueuedConnection);
+    connect(thread, SIGNAL(sendDataToGUI(QStringList)), this, SLOT(updateGUI(QStringList)), Qt::QueuedConnection);
+    connect(thread, SIGNAL(clearComboBox()), this, SLOT(clearComboBox()), Qt::QueuedConnection);
+    connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()), Qt::QueuedConnection);
+    connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()), Qt::QueuedConnection);
+    connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()), Qt::QueuedConnection);
+    connect(this, SIGNAL(timestamp(int, int, int, int)), thread, SLOT(updateTimestamp(int, int, int, int)), Qt::QueuedConnection);
+    connect(thread, SIGNAL(msgBoxSignal(int)), this, SLOT(showMessageBox(int)), Qt::QueuedConnection);
 
     // ui setup
     showStartComms();

@@ -38,8 +38,9 @@ private:
     QString filename = "Data.txt";
     QMutex serialMutex;
     int serialErrorTimeoutCount;
-
     int milli, second, minute, hour;
+    bool stopComms;
+
 signals:
     void sendDataToGUI(QStringList sensorValueList);
     void clearComboBox();
