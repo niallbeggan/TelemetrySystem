@@ -63,9 +63,9 @@ SerialPortThread::SerialPortThread() {
                  <<"UTC_Timestamp\t"
                  << "Left back suspension\t"
                  <<"UTC_Timestamp\t"
-                 << "Right back suspension"
+                 << "Right back suspension\t"
                  <<"UTC_Timestamp\t"
-                 << "Number of Satellites"
+                 << "Number of Satellites\t"
                  <<"UTC_Timestamp\t";
           stream << "\n";
           file.close();
@@ -264,8 +264,10 @@ void SerialPortThread::sendDataToGUISlot() {
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
                   for(int i = 0; i < timestampVector.length(); i++) {
-                      stream << signalVector[i] << "\t";
-                      stream << QString::number(timestampVector[i], 'g', 12) << "\t";
+                      stream << signalVector[i];
+                      stream << "\t";
+                      stream << QString::number(timestampVector[i], 'f', 3);
+                      stream << "\t"; // This one becomes just a space, half the time??
                   }
                   stream << "\n";
                   file.close();
