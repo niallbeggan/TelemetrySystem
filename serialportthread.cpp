@@ -4,7 +4,7 @@
 #include <QCoreApplication>
 
 #define REQUEST_TIME_MS 200
-#define WAIT_FOR_REPLY_TIME 162 // Round trip time = 166mS @144 bytes. // 100mS @42 bytes
+#define WAIT_FOR_REPLY_TIME 165 // Round trip time = 168-179mS @144 bytes. // 100mS @42 bytes
 #define PACKET_SIZE_BYTES 144
 
 SerialPortThread::SerialPortThread() {
@@ -66,7 +66,7 @@ SerialPortThread::SerialPortThread() {
                  << "Right back suspension\t"
                  <<"UTC_Timestamp\t"
                  << "Number of Satellites\t"
-                 <<"UTC_Timestamp\t";
+                 <<"UTC_Timestamp";
           stream << "\n";
           file.close();
     }
@@ -186,27 +186,27 @@ void SerialPortThread::sendDataToGUISlot() {
     QString msg = "";
     QStringList sensors;
     QVector <double> signalVector, timestampVector;
-    // QElapsedTimer propagationDelayTestTimer;
-    // propagationDelayTestTimer.start();
-    // double sendTime = 0;
-    // double receiveTime = 0;
+    //QElapsedTimer propagationDelayTestTimer;
+    //propagationDelayTestTimer.start();
+    //double sendTime = 0;
+    //double receiveTime = 0;
     if(TelemSerialPort != NULL) {
         if(TelemSerialPort->isOpen()) {
-            // sendTime = propagationDelayTestTimer.elapsed();
+            //sendTime = propagationDelayTestTimer.elapsed();
             TelemSerialPort->write("1");
-            TelemSerialPort->flush(); // This is actually needed. Otherwise request not sent until function returns.
+            TelemSerialPort->flush(); // This is actually needed. Otherwise request not sent until later.
             QByteArray datas;
             int loop = 0;
             QThread::msleep(WAIT_FOR_REPLY_TIME);
-            while((TelemSerialPort->bytesAvailable() < 138) && (loop < 5)) {
-                QThread::msleep(5);
+            while((TelemSerialPort->bytesAvailable() < 143) && (loop < 8)) { // If no full packet after 189mS move on. (normally 165-179mS with dummy.ino examples.Might be slower when reading CAN bus.
+                QThread::msleep(3);
                 loop++;
                 QCoreApplication::processEvents(); // Need this to update bytesAvailable otherwise never gets connected to main thread
             }
             //receiveTime = propagationDelayTestTimer.elapsed();
 
             datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
-            // qDebug() << "datas.size()" << datas.size();
+            //qDebug() << "datas.size()" << datas.size();
             if(datas.size() == PACKET_SIZE_BYTES) {
                 for(int i = 0; i < datas.size() - 7; i = i + 8) {
                     // Get signal
@@ -240,19 +240,19 @@ void SerialPortThread::sendDataToGUISlot() {
                     // loop
                 }
                 // Debug/Check section //
-                //qDebug() << sensors;
                 //qDebug() << "sendTime: " << sendTime; // Propagation test debugs
                 //qDebug() << "arduino receive :"<< sensors[0];
                 //qDebug() << "arduino send" << sensors[1];
                 //qDebug() << "receiveTime :"<< receiveTime;
+
                 //qDebug() << "Time of day from GPS :" <<  (UTC_time_seconds/3600) <<":" << ((UTC_time_seconds%3600)/60) << ":" << UTC_time_seconds%60;
 
-                //qDebug() << "timeStampSecondsVector" << timeStampSecondsVector;
-                //qDebug() << "timeStampMillisVector" << timeStampMillisVector;
+                qDebug() << "signalVector :" << signalVector;
+                qDebug() << "timestampVector :" << timestampVector;
 
                 // Send to GUI/Main thread section
                 sensors = msg.split(",");
-                if(sensors.length() > 18) //Full msg received
+                if(signalVector.length() > 17) //Full msg received
                     emit sendDataToGUI(signalVector, timestampVector);
             }
             else {
@@ -264,10 +264,10 @@ void SerialPortThread::sendDataToGUISlot() {
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
                   for(int i = 0; i < timestampVector.length(); i++) {
-                      stream << signalVector[i];
+                      stream << QString::number(signalVector[i], 'f', 1); // Print to 1 decimal place
                       stream << "\t";
-                      stream << QString::number(timestampVector[i], 'f', 3);
-                      stream << "\t"; // This one becomes just a space, half the time??
+                      stream << QString::number(timestampVector[i], 'f', 3); // Print to 3 decimal places
+                      stream << "\t";
                   }
                   stream << "\n";
                   file.close();
@@ -277,13 +277,13 @@ void SerialPortThread::sendDataToGUISlot() {
         }
         else {
             qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "OPEN ERROR: " << TelemSerialPort->errorString();
-            handleError(QSerialPort::DeviceNotFoundError); // should break loopand find errror
+            handleError(QSerialPort::DeviceNotFoundError); // Should break loop and find errror
         }
     }
 }
 
 void SerialPortThread::selectPortFromComboBoxClick(QString PortDescriptionAndNumber) {
-    if(TelemSerialPort != NULL) { //Close the port opened previously if it is open
+    if(TelemSerialPort != NULL) { // Close the port opened previously if it is open
         if(requestTimer->isActive() != true) { // If comms is not runnning
             closeComms(TelemSerialPort);
         }
@@ -304,6 +304,7 @@ void SerialPortThread::endCommsFromGUI(){
 }
 
 void SerialPortThread::telemRequestDataTimer() {
+    QThread::msleep(1500); // Serial port needs time to be setup before it works..
     requestTimer->start(REQUEST_TIME_MS);
     qDebug() << "Starting timer";
 }
