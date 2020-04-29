@@ -3,11 +3,12 @@
 #include <QStandardPaths>
 #include <QCoreApplication>
 
-#define REQUEST_TIME_MS 180
-#define WAIT_FOR_REPLY_TIME 162 // Round trip time = 100mS.
+#define REQUEST_TIME_MS 200
+#define WAIT_FOR_REPLY_TIME 162 // Round trip time = 166mS @144 bytes. // 100mS @42 bytes
 #define PACKET_SIZE_BYTES 144
 
 SerialPortThread::SerialPortThread() {
+    qRegisterMetaType<QVector<double> >("QVector<double>"); // Need to do this to send QVector <double> signals
     portNumber = ""; // Initiliase variables
     serialErrorTimeoutCount = 0;
     TelemSerialPort = NULL;
@@ -30,25 +31,42 @@ SerialPortThread::SerialPortThread() {
     QFile file(filename);
     if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
           QTextStream stream(&file);
-          stream <<"UTC_Timestamp\t"
-                 << "Time H:M:S.mS\t"
-                 << "EStop\t"
+          stream << "EStop\t"
+                 <<"UTC_Timestamp\t"
                  << "BMS Temperature (C)\t"
+                 <<"UTC_Timestamp\t"
                  << "Car speed (kmph)\t"
+                 <<"UTC_Timestamp\t"
                  << "BMS Voltage (V)\t"
+                 <<"UTC_Timestamp\t"
                  << "BMS Current (A)\t"
+                 <<"UTC_Timestamp\t"
                  << "Power (kW)\t"
+                 <<"UTC_Timestamp\t"
                  << "Left Motor Voltage (V)\t"
+                 <<"UTC_Timestamp\t"
                  << "Right Motor Voltage (A)\t"
+                 <<"UTC_Timestamp\t"
                  << "Left Motor Current (V)\t"
+                 <<"UTC_Timestamp\t"
                  << "Right Motor Current (A)\t"
+                 <<"UTC_Timestamp\t"
                  << "Steering input (%)\t"
+                 <<"UTC_Timestamp\t"
                  << "Acceleration pedal (%)\t"
+                 <<"UTC_Timestamp\t"
                  << "Brake pedal (%)\t"
+                 <<"UTC_Timestamp\t"
                  << "Left front suspension\t"
+                 <<"UTC_Timestamp\t"
                  << "Right front suspension\t"
+                 <<"UTC_Timestamp\t"
                  << "Left back suspension\t"
-                 << "Right back suspension";
+                 <<"UTC_Timestamp\t"
+                 << "Right back suspension"
+                 <<"UTC_Timestamp\t"
+                 << "Number of Satellites"
+                 <<"UTC_Timestamp\t";
           stream << "\n";
           file.close();
     }
@@ -99,41 +117,36 @@ void SerialPortThread::startComms() {
 
 void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
     serialErrorTimeoutCount += 1;
-    qDebug() << errorSent;
+    qDebug() << __FILE__ << __LINE__ << errorSent;
     int err = 0;
     if(errorSent == QSerialPort::NoError)
         err = 0;
-    if((errorSent == QSerialPort::NoError) // These all occur on the 'first pass' when a port is opened. Need to engineer around this.
-            || (errorSent == QSerialPort::NotOpenError)
-            || (errorSent == QSerialPort::DeviceNotFoundError)) // These occur when USB suddenly unplugged at bad times.
+    else if((errorSent == QSerialPort::NotOpenError)
+        || (errorSent == QSerialPort::DeviceNotFoundError)) // These occur when USB suddenly unplugged at bad times.
         err = 1;
     else
-        err = 2;
+        err = 1;
     if(serialErrorTimeoutCount > 5) // If stuck in loop, force shutdown. serialErrorTimeoutCount reset every time startComms clicked.
-        err = 2;
+        err = 1;
 
     switch (err) {
-    case 1:
+    case 0:
         // Don't do anything. This is sent whenever the port is actually opened properly. NOT AN ERROR.
         break;
-    case 2: // If you remove the usb quickly after starting comms prog will crash
-        if((TelemSerialPort != NULL) && (portNumber != "")) {
-            delete TelemSerialPort;
-            TelemSerialPort = NULL;
-            portNumber = ""; //delete the portnumber
-            qDebug() << __FILE__ << __LINE__ << "Serial port is closed and deleted!";
+    case 1: // If you remove the usb quickly after starting comms prog will crash
+        if((TelemSerialPort != NULL) && (stopComms == false)) {
+            stopComms = true;
+            qDebug() << __FILE__ << __LINE__ << "Closing serial port due to error!";
+            emit msgBoxSignal(2);
         }
-        else
-            qDebug() << __FILE__ << __LINE__ << "Serial port was already closed and deleted!";
-        emit msgBoxSignal(2);
-        qDebug() << __FILE__ << __LINE__ << errorSent;
-        emit clearComboBox();
         break;
     default:
-        // For now, just close everything for any error
-        closeComms(TelemSerialPort);
-        emit msgBoxSignal(2);
-        qDebug() << __FILE__ << __LINE__ << errorSent;
+        // For now, just close everything for any other error
+        if((TelemSerialPort != NULL) && (stopComms == false)) {
+            stopComms = true;
+            emit msgBoxSignal(2);
+            qDebug() << __FILE__ << __LINE__ << "Closing serial port due to error!";
+        }
         break;
     }
 }
@@ -172,16 +185,16 @@ void SerialPortThread::sendDataToGUISlot() {
     }
     QString msg = "";
     QStringList sensors;
-    QVector <double> signalVector, timeStampSecondsVector, timeStampMillisVector;
-    //QElapsedTimer propagationDelayTestTimer;
-    //propagationDelayTestTimer.start();
-    //double sendTime = 0;
-    //double receiveTime = 0;
+    QVector <double> signalVector, timestampVector;
+    // QElapsedTimer propagationDelayTestTimer;
+    // propagationDelayTestTimer.start();
+    // double sendTime = 0;
+    // double receiveTime = 0;
     if(TelemSerialPort != NULL) {
         if(TelemSerialPort->isOpen()) {
-            //sendTime = propagationDelayTestTimer.elapsed();
+            // sendTime = propagationDelayTestTimer.elapsed();
             TelemSerialPort->write("1");
-            TelemSerialPort->flush(); // This is actually needed. Otherwise not sent until function returns.
+            TelemSerialPort->flush(); // This is actually needed. Otherwise request not sent until function returns.
             QByteArray datas;
             int loop = 0;
             QThread::msleep(WAIT_FOR_REPLY_TIME);
@@ -193,6 +206,7 @@ void SerialPortThread::sendDataToGUISlot() {
             //receiveTime = propagationDelayTestTimer.elapsed();
 
             datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
+            // qDebug() << "datas.size()" << datas.size();
             if(datas.size() == PACKET_SIZE_BYTES) {
                 for(int i = 0; i < datas.size() - 7; i = i + 8) {
                     // Get signal
@@ -218,48 +232,46 @@ void SerialPortThread::sendDataToGUISlot() {
                         int bigByte = static_cast < char > (datas[z]);             // this carries the int's sign
                         int smallByte = static_cast < unsigned char > (datas[z+1]); // this doesnt
                         UTC_millis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
-                        UTC_millis = (UTC_millis/10); // Divide by ten to get milliseconds
+                        UTC_millis = ((UTC_millis/10)/1000); // Divide by ten to get original. Divide by 1000 to get millis
                     }
                     // add to vector
-                    timeStampSecondsVector.append(UTC_time_seconds);
-                    timeStampMillisVector.append(UTC_millis);
+                    timestampVector.append(UTC_time_seconds + UTC_millis);
                     signalVector.append(signalValue);
                     // loop
                 }
-                // Debug/Check section
-                sensors = msg.split(",");
-                qDebug() << sensors;
+                // Debug/Check section //
+                //qDebug() << sensors;
                 //qDebug() << "sendTime: " << sendTime; // Propagation test debugs
                 //qDebug() << "arduino receive :"<< sensors[0];
                 //qDebug() << "arduino send" << sensors[1];
                 //qDebug() << "receiveTime :"<< receiveTime;
                 //qDebug() << "Time of day from GPS :" <<  (UTC_time_seconds/3600) <<":" << ((UTC_time_seconds%3600)/60) << ":" << UTC_time_seconds%60;
 
-                qDebug() << "timeStampSecondsVector" << timeStampSecondsVector;
-                qDebug() << "timeStampMillisVector" << timeStampMillisVector;
+                //qDebug() << "timeStampSecondsVector" << timeStampSecondsVector;
+                //qDebug() << "timeStampMillisVector" << timeStampMillisVector;
 
+                // Send to GUI/Main thread section
+                sensors = msg.split(",");
                 if(sensors.length() > 18) //Full msg received
-                    emit sendDataToGUI(sensors);
+                    emit sendDataToGUI(signalVector, timestampVector);
             }
             else {
                 msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100";
                 sensors = msg.split(",");
-                emit sendDataToGUI(sensors);
+                emit sendDataToGUI(signalVector, timestampVector);
             }
             QFile file(filename);  // Log to text file
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
-                  for(int i = 0; i < timeStampSecondsVector.length(); i++) {
+                  for(int i = 0; i < timestampVector.length(); i++) {
                       stream << signalVector[i] << "\t";
-                      stream << timeStampSecondsVector[i] << ".";
-                      stream << timeStampMillisVector[i] << "\t";
+                      stream << QString::number(timestampVector[i], 'g', 12) << "\t";
                   }
                   stream << "\n";
                   file.close();
             }
             signalVector.clear();
-            timeStampMillisVector.clear();
-            timeStampSecondsVector.clear();
+            timestampVector.clear();
         }
         else {
             qDebug() << QThread::currentThreadId() << __FILE__ << __LINE__ << "OPEN ERROR: " << TelemSerialPort->errorString();
@@ -270,7 +282,9 @@ void SerialPortThread::sendDataToGUISlot() {
 
 void SerialPortThread::selectPortFromComboBoxClick(QString PortDescriptionAndNumber) {
     if(TelemSerialPort != NULL) { //Close the port opened previously if it is open
-        closeComms(TelemSerialPort);
+        if(requestTimer->isActive() != true) { // If comms is not runnning
+            closeComms(TelemSerialPort);
+        }
     }
     Q_FOREACH(QSerialPortInfo port, QSerialPortInfo::availablePorts()) {
         if(PortDescriptionAndNumber == (port.description() + " (" + port.portName() + ")")) {

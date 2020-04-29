@@ -1,24 +1,43 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-#define ESTOP sensors[0] // Makes the code read-able
-#define BMSTEMPERATURE sensors[1]
-#define CARSPEED sensors[2]
-#define BMSVOLTAGE sensors[3]
-#define BMSCURRENT sensors[4]
-#define POWER_KW sensors[5]
-#define LEFTMOTORVOLTAGE sensors[6]
-#define RIGHTMOTORVOLTAGE sensors[7]
-#define LEFTMOTORCURRENT sensors[8]
-#define RIGHTMOTORCURRENT sensors[9]
-#define STEERINGINPUT sensors[10]
-#define ACCELERATOR_PEDAL_POSITION sensors[11]
-#define BRAKE_PEDAL_POSITION sensors[12]
-#define SUSPENSION_FRONT_LEFT sensors[13]
-#define SUSPENSION_FRONT_RIGHT sensors[14]
-#define SUSPENSION_REAR_LEFT sensors[15]
-#define SUSPENSION_REAR_RIGHT sensors[16]
-#define NO_OF_SATELLITES sensors[17]
+#define ESTOP signalVector[0] // Makes the code read-able
+#define BMSTEMPERATURE signalVector[1]
+#define CARSPEED signalVector[2]
+#define BMSVOLTAGE signalVector[3]
+#define BMSCURRENT signalVector[4]
+#define POWER_KW signalVector[5]
+#define LEFTMOTORVOLTAGE signalVector[6]
+#define RIGHTMOTORVOLTAGE signalVector[7]
+#define LEFTMOTORCURRENT signalVector[8]
+#define RIGHTMOTORCURRENT signalVector[9]
+#define STEERINGINPUT signalVector[10]
+#define ACCELERATOR_PEDAL_POSITION signalVector[11]
+#define BRAKE_PEDAL_POSITION signalVector[12]
+#define SUSPENSION_FRONT_LEFT signalVector[13]
+#define SUSPENSION_FRONT_RIGHT signalVector[14]
+#define SUSPENSION_REAR_LEFT signalVector[15]
+#define SUSPENSION_REAR_RIGHT signalVector[16]
+#define NO_OF_SATELLITES signalVector[17]
+
+#define ESTOP_TIMESTAMP timestampVector[0]
+#define BMSTEMPERATURE_TIMESTAMP timestampVector[1]
+#define CARSPEED_TIMESTAMP timestampVector[2]
+#define BMSVOLTAGE_TIMESTAMP timestampVector[3]
+#define BMSCURRENT_TIMESTAMP timestampVector[4]
+#define POWER_KW_TIMESTAMP timestampVector[5]
+#define LEFTMOTORVOLTAGE_TIMESTAMP timestampVector[6]
+#define RIGHTMOTORVOLTAGE_TIMESTAMP timestampVector[7]
+#define LEFTMOTORCURRENT_TIMESTAMP timestampVector[8]
+#define RIGHTMOTORCURRENT_TIMESTAMP timestampVector[9]
+#define STEERINGINPUT_TIMESTAMP timestampVector[10]
+#define ACCELERATOR_PEDAL_POSITION_TIMESTAMP timestampVector[11]
+#define BRAKE_PEDAL_POSITION_TIMESTAMP timestampVector[12]
+#define SUSPENSION_FRONT_LEFT_TIMESTAMP timestampVector[13]
+#define SUSPENSION_FRONT_RIGHT_TIMESTAMP timestampVector[14]
+#define SUSPENSION_REAR_LEFT_TIMESTAMP timestampVector[15]
+#define SUSPENSION_REAR_RIGHT_TIMESTAMP timestampVector[16]
+#define NO_OF_SATELLITES_TIMESTAMP timestampVector[17]
 
 #define BATTERY_TEMP_LIMIT 60
 
@@ -41,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this, SIGNAL(startComms()), thread, SLOT(startComms()), Qt::QueuedConnection);
     connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)), Qt::QueuedConnection);
     connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()), Qt::QueuedConnection);
-    connect(thread, SIGNAL(sendDataToGUI(QStringList)), this, SLOT(updateGUI(QStringList)), Qt::QueuedConnection);
+    connect(thread, SIGNAL(sendDataToGUI(QVector <double>, QVector <double>)), this, SLOT(updateGUI(QVector <double>, QVector <double>)), Qt::QueuedConnection);
     connect(thread, SIGNAL(clearComboBox()), this, SLOT(clearComboBox()), Qt::QueuedConnection);
     connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()), Qt::QueuedConnection);
     connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()), Qt::QueuedConnection);
@@ -121,7 +140,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabFrontLeftGraph->update();
 
     ui->suspensionTabFrontLeftGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
-    ui->suspensionTabFrontLeftGraph->xAxis->setLabel("Time (samples)");
+    ui->suspensionTabFrontLeftGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     ui->suspensionTabRearLeftGraph->addGraph();
     ui->suspensionTabRearLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -131,7 +150,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabRearLeftGraph->update();
 
     ui->suspensionTabRearLeftGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
-    ui->suspensionTabRearLeftGraph->xAxis->setLabel("Time (samples)");
+    ui->suspensionTabRearLeftGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     ui->suspensionTabFrontRightGraph->addGraph();
     ui->suspensionTabFrontRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -141,7 +160,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabFrontRightGraph->update();
 
     ui->suspensionTabFrontRightGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
-    ui->suspensionTabFrontRightGraph->xAxis->setLabel("Time (samples)");
+    ui->suspensionTabFrontRightGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     ui->suspensionTabRearRightGraph->addGraph();
     ui->suspensionTabRearRightGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -151,7 +170,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->suspensionTabRearRightGraph->update();
 
     ui->suspensionTabRearRightGraph->yAxis->setLabel("Position (%) (100% is fully compressed)");
-    ui->suspensionTabRearRightGraph->xAxis->setLabel("Time (samples)");
+    ui->suspensionTabRearRightGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
 //    ui->frontLeftPlot->setBackground(Qt::black);
 //    //ui->frontLeftPlot->axisRect()->setBackground(Qt::white);
@@ -189,7 +208,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabTempGraph->xAxis->setRange(0, 300);
     ui->batteryTabTempGraph->yAxis->setRange(0, 100);
     ui->batteryTabTempGraph->yAxis->setLabel("Temperature (Degrees C)");
-    ui->batteryTabTempGraph->xAxis->setLabel("Time (samples)");
+    ui->batteryTabTempGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     ui->batteryTabTempGraph->addGraph();
     ui->batteryTabTempGraph->graph(1)->setPen(redPen);
@@ -205,7 +224,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabVoltageGraph->yAxis->setRange(0, 80);
     ui->batteryTabVoltageGraph->update();
     ui->batteryTabVoltageGraph->yAxis->setLabel("Battery voltage (V)");
-    ui->batteryTabVoltageGraph->xAxis->setLabel("Time (samples)");
+    ui->batteryTabVoltageGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     ui->batteryTabCurrentGraph->addGraph();
     ui->batteryTabCurrentGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -215,7 +234,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabCurrentGraph->yAxis->setRange(0, 500);
     ui->batteryTabCurrentGraph->update();
     ui->batteryTabCurrentGraph->yAxis->setLabel("Battery current (A)");
-    ui->batteryTabCurrentGraph->xAxis->setLabel("Time (samples)");
+    ui->batteryTabCurrentGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     // Pedal positions tab
     brakePedal.append(suspensionLeftFrontX);
@@ -238,7 +257,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->update();
 
     ui->pedalTabGraph->yAxis->setLabel("Pedal position (%) (100% is fully pressed)");
-    ui->pedalTabGraph->xAxis->setLabel("Time (samples)");
+    ui->pedalTabGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     ui->pedalTabGraph->graph(0)->setPen(redPen);
     ui->pedalTabGraph->graph(0)->setName("Brake pedal"); // Legend
@@ -262,7 +281,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->motorDiffPower->update();
 
     ui->motorDiffPower->xAxis->setLabel("Difference in power between motors (kW) (negative means left motor has more power)");
-    ui->motorDiffPower->yAxis->setLabel("Time (samples)");
+    ui->motorDiffPower->yAxis->setLabel("Timestamp (seconds of the day)");
 
     // Steering Input graph
     steeringInputPercent.append(suspensionLeftFrontX);
@@ -282,7 +301,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->steeringInputGraph->update();
 
     ui->steeringInputGraph->xAxis->setLabel("Steering position (%) (negative means left)");
-    ui->steeringInputGraph->yAxis->setLabel("Time (samples)");
+    ui->steeringInputGraph->yAxis->setLabel("Timestamp (seconds of the day)");
 }
 
 MainWindow::~MainWindow() {
@@ -310,36 +329,38 @@ void MainWindow::showMessageBox(int type) {
 
 // ********************** Updating all tabs *************************** //
 
-void MainWindow::updateGUI(QStringList sensors) {
+void MainWindow::updateGUI(QVector <double> signalVector, QVector <double> timestampVector) {
     //QApplication::processEvents(); // Careful with this.
-    if(sensors.length() > 18) {
-        // qDebug() << sensors;
+    if(signalVector.length() > 17) {
+        //qDebug() << signalVector;
+        //qDebug() << timestampVector;
+        //qDebug() << "timestampSeconds" << QString::number(timestampVector[0], 'g', 12);
 
         // Suspension
-        addPointsToGraph(suspensionLeftFront, suspensionLeftFront[0].length()+1, SUSPENSION_FRONT_LEFT.toDouble());
-        addPointsToGraph(suspensionRightFront, suspensionRightFront[0].length()+1, SUSPENSION_FRONT_RIGHT.toDouble());
-        addPointsToGraph(suspensionLeftRear, suspensionLeftRear[0].length()+1, SUSPENSION_REAR_LEFT.toDouble());
-        addPointsToGraph(suspensionRightRear, suspensionRightRear[0].length()+1, SUSPENSION_REAR_RIGHT.toDouble());
+        addPointsToGraphVector(suspensionLeftFront, SUSPENSION_FRONT_LEFT_TIMESTAMP, SUSPENSION_FRONT_LEFT);
+        addPointsToGraphVector(suspensionRightFront, SUSPENSION_FRONT_RIGHT_TIMESTAMP, SUSPENSION_FRONT_RIGHT);
+        addPointsToGraphVector(suspensionLeftRear, SUSPENSION_REAR_LEFT_TIMESTAMP, SUSPENSION_REAR_LEFT);
+        addPointsToGraphVector(suspensionRightRear, SUSPENSION_REAR_RIGHT_TIMESTAMP, SUSPENSION_REAR_RIGHT);
         plotGraphs();
 
         // Battery
         updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
-        addPointsToGraph(batteryTemp, batteryTemp[0].length()+1, BMSTEMPERATURE.toDouble());
-        addPointsToGraph(batteryTempLimit, batteryTempLimit[0].length()+1, BATTERY_TEMP_LIMIT); // Might remove,red limit line
-        addPointsToGraph(batteryCurrent, batteryCurrent[0].length()+1, BMSCURRENT.toDouble());
-        addPointsToGraph(batteryVoltage, batteryVoltage[0].length()+1, BMSVOLTAGE.toDouble());
+        addPointsToGraphVector(batteryTemp, BMSTEMPERATURE_TIMESTAMP, BMSTEMPERATURE);
+        addPointsToGraphVector(batteryTempLimit, BMSTEMPERATURE_TIMESTAMP, BATTERY_TEMP_LIMIT); // Might remove,red limit line
+        addPointsToGraphVector(batteryCurrent, BMSCURRENT_TIMESTAMP, BMSCURRENT);
+        addPointsToGraphVector(batteryVoltage, BMSVOLTAGE_TIMESTAMP, BMSVOLTAGE);
         plotBatteryGraphs();
 
         // Main Tab
-        updateMainTab(BMSTEMPERATURE.toDouble(), BMSVOLTAGE.toDouble(), CARSPEED.toDouble(), POWER_KW.toDouble(), NO_OF_SATELLITES.toInt());
+        updateMainTab(BMSTEMPERATURE, BMSVOLTAGE, CARSPEED, POWER_KW, NO_OF_SATELLITES);
 
         // Pedal positions tab
-        updatePedalTab(BRAKE_PEDAL_POSITION, ACCELERATOR_PEDAL_POSITION);
+        updatePedalTab(BRAKE_PEDAL_POSITION, BRAKE_PEDAL_POSITION_TIMESTAMP , ACCELERATOR_PEDAL_POSITION, ACCELERATOR_PEDAL_POSITION_TIMESTAMP);
 
         //Motor & Steering tab
-        updateMotorAndSteeringTab(LEFTMOTORVOLTAGE.toDouble(), LEFTMOTORCURRENT.toDouble(),
-                                  RIGHTMOTORVOLTAGE.toDouble(), RIGHTMOTORCURRENT.toDouble(),
-                                  STEERINGINPUT.toDouble());
+        updateMotorAndSteeringTab(LEFTMOTORVOLTAGE, LEFTMOTORCURRENT, LEFTMOTORCURRENT_TIMESTAMP,
+                                  RIGHTMOTORVOLTAGE, RIGHTMOTORCURRENT, RIGHTMOTORCURRENT_TIMESTAMP,
+                                  STEERINGINPUT, STEERINGINPUT_TIMESTAMP);
     }
 }
 
@@ -466,9 +487,13 @@ void MainWindow::updateMainTab(double temp, double voltage, double speed, double
 
 //********************** Suspension functions **********************//
 
-void MainWindow::addPointsToGraph(QVector<QVector<double> > &graph, double x, double y) {
-    graph[0].append(x);
-    graph[1].append(y);
+void MainWindow::addPointsToGraphVector(QVector<QVector<double> > &graphVector, double x, double y) {
+    graphVector[0].append(x); // Add two new points
+    graphVector[1].append(y);
+    if(graphVector[0].length() > 1000) { // TMP Add variable in for graph length?
+        graphVector[1].removeFirst(); // If more than 1000 values, remove oldest every time u add a new 1.
+        graphVector[0].removeFirst();
+    }
 }
 
 void MainWindow::plotGraphs() {
@@ -492,7 +517,7 @@ void MainWindow::frontLeftPlot() {
     }
     else
         startOfXAxis = suspensionLeftFront[0][suspensionLeftFront[0].length()-1];
-    ui->suspensionTabFrontLeftGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabFrontLeftGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));//tmp
     ui->suspensionTabFrontLeftGraph->yAxis->setRange(1,100);
     ui->suspensionTabFrontLeftGraph->update();
 }
@@ -506,7 +531,7 @@ void MainWindow::rearLeftPlot() {
     }
     else
         startOfXAxis = suspensionRightFront[0][suspensionRightFront[0].length()-1];
-    ui->suspensionTabRearLeftGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabRearLeftGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     ui->suspensionTabRearLeftGraph->yAxis->setRange(1,100);
     ui->suspensionTabRearLeftGraph->update();
 }
@@ -520,7 +545,7 @@ void MainWindow::frontRightPlot() {
     }
     else
         startOfXAxis = suspensionLeftRear[0][suspensionLeftRear[0].length()-1];
-    ui->suspensionTabFrontRightGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabFrontRightGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120)); // -120 here means show the last two minutes data
     ui->suspensionTabFrontRightGraph->yAxis->setRange(1,100);
     ui->suspensionTabFrontRightGraph->update();
 }
@@ -534,7 +559,7 @@ void MainWindow::rearRightPlot() {
     }
     else
         startOfXAxis = suspensionRightRear[0][suspensionRightRear[0].length()-1];
-    ui->suspensionTabRearRightGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->suspensionTabRearRightGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     ui->suspensionTabRearRightGraph->yAxis->setRange(1,100);
     ui->suspensionTabRearRightGraph->update();
 }
@@ -560,23 +585,20 @@ void MainWindow::rearRightPlot() {
 
 //*********************************Battery tab functions *************************//
 
-void MainWindow::updateBatteryTab(QString voltage, QString current, QString temp) {
-    double Voltage = voltage.toDouble();
-    double Current = current.toDouble();
-    double Temp = temp.toDouble();
+void MainWindow::updateBatteryTab(double voltage, double current, double temp) {
 
     double maxVoltage = 75.6; // 17 cellS
     double minVoltage = 51; // 3v/cell
-    double stateOfCharge = 100*(Voltage-minVoltage)/(maxVoltage-minVoltage);
-    if((Voltage < lowestVoltage) && (Voltage > 0))
-        lowestVoltage = Voltage;
-    if(Current > highestCurrent)
-        highestCurrent = Current;
+    double stateOfCharge = 100*(voltage-minVoltage)/(maxVoltage-minVoltage);
+    if((voltage < lowestVoltage) && (voltage > 0))
+        lowestVoltage = voltage;
+    if(current > highestCurrent)
+        highestCurrent = current;
     ui->batteryTabStateOfChargeProgressBar->setValue(stateOfCharge); // this needs to be updated with more comlplex state of charge calculation
-    ui->batteryTabTempLCD->display(Temp);
+    ui->batteryTabTempLCD->display(temp);
     ui->batteryTabChargeLCD->display(stateOfCharge);
-    ui->batteryTabCurrentLCD->display(Current);
-    ui->batteryTabVoltageLCD->display(Voltage);
+    ui->batteryTabCurrentLCD->display(current);
+    ui->batteryTabVoltageLCD->display(voltage);
     ui->batteryTabMaxCurrentLCD->display(highestCurrent);
     ui->batteryTabLowestVoltageLCD->display(lowestVoltage);
 }
@@ -591,7 +613,7 @@ void MainWindow::batteryTempPlot() {
     }
     else
         startOfXAxis = batteryTemp[0][batteryTemp[0].length()-1];
-    ui->batteryTabTempGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->batteryTabTempGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     ui->batteryTabTempGraph->yAxis->setRange(0,100);
     ui->batteryTabTempGraph->update();
 }
@@ -605,7 +627,7 @@ void MainWindow::batteryCurrentPlot() {
     }
     else
         startOfXAxis = batteryCurrent[0][batteryCurrent[0].length()-1];
-    ui->batteryTabCurrentGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->batteryTabCurrentGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     double min = *std::min_element(batteryCurrent[1].constBegin(), batteryCurrent[1].constEnd());
     if(0 < min)
         min = 0;
@@ -627,7 +649,7 @@ void MainWindow::batteryVoltagePlot() {
     }
     else
         startOfXAxis = batteryVoltage[0][batteryVoltage[0].length()-1];
-    ui->batteryTabVoltageGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->batteryTabVoltageGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     double min = *std::min_element(batteryVoltage[1].constBegin(), batteryVoltage[1].constEnd());
     double max = *std::max_element(batteryVoltage[1].constBegin(), batteryVoltage[1].constEnd());
     if(min == -100)
@@ -646,11 +668,9 @@ void MainWindow::plotBatteryGraphs() {
 
 // ********************** Pedal functions *************************** //
 
-void MainWindow::updatePedalTab(QString brake, QString accelerator) {
-    double Brake = brake.toDouble();
-    double Accelerator = accelerator.toDouble();
-    addPointsToGraph(brakePedal, brakePedal[0].length()+1, Brake);
-    addPointsToGraph(acceleratorPedal, acceleratorPedal[0].length()+1, Accelerator); //remove this
+void MainWindow::updatePedalTab(double brake, double brakeTimestamp, double accelerator, double acceleratorTimestamp) {
+    addPointsToGraphVector(brakePedal, brakeTimestamp, brake);
+    addPointsToGraphVector(acceleratorPedal, acceleratorTimestamp, accelerator); //remove this
     plotPedalGraph();
 }
 
@@ -663,7 +683,7 @@ void MainWindow::pedalBrakePlot() {
     }
     else
         startOfXAxis = brakePedal[0][brakePedal[0].length()-1];
-    ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     ui->pedalTabGraph->yAxis->setRange(0,100);
     ui->pedalTabGraph->update();
 }
@@ -677,7 +697,7 @@ void MainWindow::pedalAcceleratorPlot() {
     }
     else
         startOfXAxis = acceleratorPedal[0][acceleratorPedal[0].length()-1];
-    ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-300));
+    ui->pedalTabGraph->xAxis->setRange(startOfXAxis,(startOfXAxis-120));
     ui->pedalTabGraph->yAxis->setRange(0,100);
     ui->pedalTabGraph->update();
 }
@@ -689,8 +709,9 @@ void MainWindow::plotPedalGraph() {
 
 // ********************** Motor and Steering functions *************************** //
 
-void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftMotorCurrent,
-                                           double rightMotorVoltage, double rightMotorCurrent, double steeringInput) {
+void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftMotorCurrent, double leftMotorCurrentTimestamp,
+                                           double rightMotorVoltage, double rightMotorCurrent, double rightMotorCurrentTimestamp,
+                                           double steeringInput, double steeringInputTimestamp) {
     double leftMotorPower = leftMotorCurrent * leftMotorVoltage;
     double rightMotorPower = rightMotorCurrent * rightMotorVoltage;
     if(leftMotorVoltage == -100) {
@@ -701,8 +722,8 @@ void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftM
         steeringInput = 0;
     }
     double differentialPower = rightMotorPower - leftMotorPower; // If left power is bigger, result is neg, plot more left power on left side of graph.
-    addPointsToGraph(motorDifferentialPower, differentialPower, motorDifferentialPower[1].length()+1); // differentialPower
-    addPointsToGraph(steeringInputPercent, steeringInput, steeringInputPercent[1].length()+1);
+    addPointsToGraphVector(motorDifferentialPower, differentialPower, leftMotorCurrentTimestamp); // differentialPower TIMESTAMPS ASSUME TO BE THE SAME!!!
+    addPointsToGraphVector(steeringInputPercent, steeringInput, steeringInputTimestamp);
     motorDifferentialPlot();
     steeringInputPlot();
 }
@@ -713,14 +734,12 @@ void MainWindow::motorDifferentialPlot() {
     int pxy = ui->motorDiffPower->xAxis->coordToPixel(0);
     ui->motorDiffPower->yAxis->setOffset(ui->motorDiffPower->axisRect()->left()-pxy); // Internet code
 
-    ui->motorDiffPower->replot();
+    ui->motorDiffPower->replot();  
+
     double startOfYAxis = 0;
-    if(motorDifferentialPower[1].length() < 500) {
-        startOfYAxis = 500;
-    }
-    else
-        startOfYAxis = motorDifferentialPower[1][motorDifferentialPower[1].length()-1];
-    ui->motorDiffPower->yAxis->setRange(startOfYAxis,(startOfYAxis-500));
+
+    startOfYAxis = motorDifferentialPower[1][motorDifferentialPower[1].length()-1];
+    ui->motorDiffPower->yAxis->setRange(startOfYAxis,(startOfYAxis-120));
     double min = *std::min_element(motorDifferentialPower[0].constBegin(), motorDifferentialPower[0].constEnd());
     double max = *std::max_element(motorDifferentialPower[0].constBegin(), motorDifferentialPower[0].constEnd());
     if(max < 1000)
@@ -743,12 +762,9 @@ void MainWindow::steeringInputPlot() {
 
     ui->steeringInputGraph->replot();
     double startOfYAxis = 0;
-    if(steeringInputPercent[1].length() < 500) {
-        startOfYAxis = 500;
-    }
-    else
-        startOfYAxis = steeringInputPercent[1][steeringInputPercent[1].length()-1];
-    ui->steeringInputGraph->yAxis->setRange(startOfYAxis,(startOfYAxis-500));
+    startOfYAxis = steeringInputPercent[1][steeringInputPercent[1].length()-1];
+
+    ui->steeringInputGraph->yAxis->setRange(startOfYAxis,(startOfYAxis-120));
     ui->steeringInputGraph->xAxis->setRange(-55, 55);
     ui->steeringInputGraph->update();
 }

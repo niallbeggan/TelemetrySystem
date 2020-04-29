@@ -42,7 +42,7 @@ private:
     bool stopComms;
 
 signals:
-    void sendDataToGUI(QStringList sensorValueList);
+    void sendDataToGUI(QVector<double>, QVector<double>);
     void clearComboBox();
     void scanSerialPorts();
     void startTelem();

@@ -4,8 +4,10 @@ void setup() {
 }
 
 String replyIf1 = "0";
-long UTCtimeStamp = 0;
-int UTC_millis = 0;
+long UTCtimeStamp = 70000;
+int UTC_millis = 111;
+
+int tmpSecondCounter = 0;
 
 //####################################################
 // Initialise all signals.
@@ -47,7 +49,7 @@ void loop() {
 
   // Scale signals up to two bytes and send
   sendSerialAsTwoBytes(1);
-  sendSerialAsTwoBytes(bmsTemp2); // Takes a float up to 0 - 6500. Sends it to 1 decimal place.
+  sendSerialAsTwoBytes(bmsTemp2); // Takes a float within the range -3200.0 up to 3200.0. Sends it with 1 decimal place.
   sendSerialAsTwoBytes(carSpeed3);
   sendSerialAsTwoBytes(bmsVoltage4);
   sendSerialAsTwoBytes(bmsCurrent5);
@@ -67,9 +69,8 @@ void loop() {
   sendSerialAsTwoBytes(suspensionsFrontRight15);
   sendSerialAsTwoBytes(suspensionsRearLeft16);
   sendSerialAsTwoBytes(suspensionsRearRight17);
+  // Not on CAN bus && no plans to be
   sendSerialAsTwoBytes(noOfSatellites);
-  sendTimestampOverSerialAs4Bytes();
-  sendSerialAsTwoBytes(count%1000);
 
   replyIf1 = "0"; // dont reply again until next request
  }
@@ -81,11 +82,12 @@ void sendSerialAsTwoBytes(float value) {
   byte big = (byte) ((decimalValue >> 8) & 0xFF);
   Serial.write(big);
   Serial.write(small);
+
+  sendTimestampOverSerialAs4Bytes(); // UTC seconds
+  sendTimestampMillisOverSerialAs2Bytes();
 }
 
-void sendTimestampOverSerialAs4Bytes() {
-  UTCtimeStamp = UTCtimeStamp + 1; // Seconds accuracy for now
-  
+void sendTimestampOverSerialAs4Bytes() {  
   byte b[4];
   for (int i=0; i<4; i++) {
     b[i]=((UTCtimeStamp>>(i*8)) & 0xff); //extract the right-most byte of the shifted variable
@@ -93,11 +95,32 @@ void sendTimestampOverSerialAs4Bytes() {
   }
 }
 
+void sendTimestampMillisOverSerialAs2Bytes() {
+  int decimalValue =   UTC_millis*10;// UTC_millis
+  byte small = (byte) (decimalValue & 0xFF);
+  byte big = (byte) ((decimalValue >> 8) & 0xFF);
+  Serial.write(big);
+  Serial.write(small);
+}
+
 void generateDummyValues() { // Generates dummy data for example & sys testing
   if(count == 1200) { // 1200 samples, about 10 a second, therefore roughly 2 minute loop
     count = 0;
   }
   count++;
+  tmpSecondCounter = tmpSecondCounter + 1;
+  UTC_millis = UTC_millis + 150;
+  if(tmpSecondCounter == 5) {
+      UTCtimeStamp = UTCtimeStamp + 1; // Seconds accuracy for now
+      tmpSecondCounter = 0;
+      UTC_millis = 0;
+  }
+
+  if(UTCtimeStamp == 70020) {
+    UTCtimeStamp = 70080;
+  }
+  
+  
   if(count > 30) {
     eStop1 = 1;
   }
