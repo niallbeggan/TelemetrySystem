@@ -20,6 +20,8 @@ class SerialPortThread : public QObject
 public:
     SerialPortThread();
     ~SerialPortThread();
+    float take8ByteArrayReturnSignal(QByteArray messageArray);
+    double take8ByteArrayReturnTimestamp(QByteArray messageArray);
 
 private slots:
     void handleError(QSerialPort::SerialPortError errorSent);
@@ -28,7 +30,7 @@ private slots:
     void startComms();
     void endCommsFromGUI();
     void telemRequestDataTimer();
-    void updateTimestamp(int millis, int seconds, int minutes, int hours);
+    void updateRunTime(int millis, int seconds, int minutes, int hours);
 
 private:
     int closeComms(QSerialPort* &port);

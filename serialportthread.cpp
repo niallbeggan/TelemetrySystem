@@ -77,6 +77,38 @@ SerialPortThread::~SerialPortThread() {
     delete requestTimer;
 }
 
+float SerialPortThread::take8ByteArrayReturnSignal(QByteArray messageArray) {
+    // declare variables
+    float signalValue = -100; // Could be neg or pos
+
+    // Get signal
+    int bigByte = static_cast < char > (messageArray[0]);                // This carries the int's sign
+    int smallByte = static_cast < unsigned char > (messageArray[1]);   // this doesnt
+    if(bigByte < 0)                                               // If neg change sign of small byte
+        signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
+    signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
+    signalValue = signalValue/10;
+    return signalValue;
+}
+
+double SerialPortThread::take8ByteArrayReturnTimestamp(QByteArray messageArray) {
+    double timestampSeconds = -1; // Time of day in seconds
+    double timestampMillis = 0; // Milliseconds between seconds
+    double timestamp = -1; // -1 is a QT fail value. 0 is arduino fail value
+    // get timestamp
+    int x = 0;
+    for (int z = 2; z < (6); z = z + 1) {
+        timestampSeconds += static_cast < unsigned char > (messageArray[z]) <<(x*8);
+        x = x + 1;
+    }
+    int bigByte = static_cast < char > (messageArray[6]);             // this carries the int's sign
+    int smallByte = static_cast < unsigned char > (messageArray[7]); // this doesnt
+    timestampMillis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
+    timestampMillis = (timestampMillis/1000); // Divide by 1000 to convert to seconds
+    timestamp = timestampSeconds + timestampMillis;
+    return timestamp;
+}
+
 void SerialPortThread::startComms() {
     stopComms = false;
     serialErrorTimeoutCount = 0; // Reset serial port reset counter every time startcomms is clicked.
@@ -135,6 +167,7 @@ void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
         break;
     case 1: // If you remove the usb quickly after starting comms prog will crash
         if((TelemSerialPort != NULL) && (stopComms == false)) {
+            qDebug() << __FILE__ << __LINE__ << "stopComms == true.";
             stopComms = true;
             qDebug() << __FILE__ << __LINE__ << "Closing serial port due to error!";
             emit msgBoxSignal(2);
@@ -143,6 +176,7 @@ void SerialPortThread::handleError(QSerialPort::SerialPortError errorSent) {
     default:
         // For now, just close everything for any other error
         if((TelemSerialPort != NULL) && (stopComms == false)) {
+            qDebug() << __FILE__ << __LINE__ << "stopComms == true.";
             stopComms = true;
             emit msgBoxSignal(2);
             qDebug() << __FILE__ << __LINE__ << "Closing serial port due to error!";
@@ -181,18 +215,18 @@ int SerialPortThread::closeComms(QSerialPort* &port) {
 
 void SerialPortThread::sendDataToGUISlot() {
     if(stopComms == true) {
+        qDebug() << __FILE__ << __LINE__ << "Calling closeComms.";
         closeComms(TelemSerialPort);
     }
-    QString msg = "";
     QStringList sensors;
     QVector <double> signalVector, timestampVector;
-    //QElapsedTimer propagationDelayTestTimer;
-    //propagationDelayTestTimer.start();
-    //double sendTime = 0;
-    //double receiveTime = 0;
+    //QElapsedTimer propagationDelayTestTimer; // UNCOMMENT FOR DELAY TEST
+    //propagationDelayTestTimer.start(); // UNCOMMENT FOR DELAY TEST
+    //double sendTime = 0; // UNCOMMENT FOR DELAY TEST
+    //double receiveTime = 0; // UNCOMMENT FOR DELAY TEST
     if(TelemSerialPort != NULL) {
         if(TelemSerialPort->isOpen()) {
-            //sendTime = propagationDelayTestTimer.elapsed();
+            //sendTime = propagationDelayTestTimer.elapsed(); // UNCOMMENT FOR DELAY TEST
             TelemSerialPort->write("1");
             TelemSerialPort->flush(); // This is actually needed. Otherwise request not sent until later.
             QByteArray datas;
@@ -203,63 +237,52 @@ void SerialPortThread::sendDataToGUISlot() {
                 loop++;
                 QCoreApplication::processEvents(); // Need this to update bytesAvailable otherwise never gets connected to main thread
             }
-            //receiveTime = propagationDelayTestTimer.elapsed();
+            //receiveTime = propagationDelayTestTimer.elapsed(); // UNCOMMENT FOR DELAY TEST
 
             datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
-            //qDebug() << "datas.size()" << datas.size();
+            float signal = -1;
+            double timestamp = -1;
+            // qDebug() << "datas.size()" << datas.size();
             if(datas.size() == PACKET_SIZE_BYTES) {
                 for(int i = 0; i < datas.size() - 7; i = i + 8) {
-                    // Get signal
-                    int bigByte = static_cast < char > (datas[i]);                // This carries the int's sign
-                    int smallByte = static_cast < unsigned char > (datas[i+1]);   // this doesnt
-                    float signalValue = -100;                                     // Could be neg or pos
-                    if(bigByte < 0)                                               // If neg change sign of small byte
-                        signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
-                    signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
-                    signalValue = signalValue/10;
-                    msg += QString::number(signalValue) + ",";
-                    // get timestamp
-                    QByteArray UTC;
-                    int x = 0;
-                    double UTC_time_seconds = 0; // Time of day in seconds
-                    double UTC_millis = 0; // Milliseconds between seconds
-                    for (int z = i+2; z < (i+6); z = z + 1) {
-                        UTC += datas[z];
-                        UTC_time_seconds += static_cast < unsigned char > (UTC[x]) <<(x*8);
-                        x = x + 1;
-                    }
-                    for (int z = i+6; z < (i+7); z = z + 1) {
-                        int bigByte = static_cast < char > (datas[z]);             // this carries the int's sign
-                        int smallByte = static_cast < unsigned char > (datas[z+1]); // this doesnt
-                        UTC_millis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
-                        UTC_millis = ((UTC_millis/10)/1000); // Divide by ten to get original. Divide by 1000 to get millis
-                    }
+                    QByteArray CAN_Message = datas.mid(i, 8);
+                    signal = take8ByteArrayReturnSignal(CAN_Message);
+                    timestamp = take8ByteArrayReturnTimestamp(CAN_Message);
                     // add to vector
-                    timestampVector.append(UTC_time_seconds + UTC_millis);
-                    signalVector.append(signalValue);
+                    timestampVector.append(timestamp);
+                    signalVector.append(signal);
                     // loop
                 }
                 // Debug/Check section //
-                //qDebug() << "sendTime: " << sendTime; // Propagation test debugs
-                //qDebug() << "arduino receive :"<< sensors[0];
-                //qDebug() << "arduino send" << sensors[1];
-                //qDebug() << "receiveTime :"<< receiveTime;
+                //qDebug() << "sendTime: " << sendTime; // UNCOMMENT FOR DELAY TEST
+                //qDebug() << "receiveTime :"<< receiveTime; // UNCOMMENT FOR DELAY TEST
 
                 //qDebug() << "Time of day from GPS :" <<  (UTC_time_seconds/3600) <<":" << ((UTC_time_seconds%3600)/60) << ":" << UTC_time_seconds%60;
 
-                qDebug() << "signalVector :" << signalVector;
-                qDebug() << "timestampVector :" << timestampVector;
+                //qDebug() << "signalVector :" << signalVector;
+                //qDebug() << "timestampVector :" << timestampVector;
 
                 // Send to GUI/Main thread section
-                sensors = msg.split(",");
-                if(signalVector.length() > 17) //Full msg received
+                if(signalVector.length() > 17) // Full msg received
                     emit sendDataToGUI(signalVector, timestampVector);
+                else {
+                    for(int i = 0; i < 18; i++) {
+                        signalVector.append(-1); // Send error values to GUI if somehow signalVector is too short
+                        timestampVector.append(-1);
+                    }
+                }
             }
             else {
-                msg = "-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100,-100";
-                sensors = msg.split(",");
+                for(int i = 0; i < 18; i++) { // Send error values to GUI if not enough bytes received
+                    signalVector.append(-1);
+                    timestampVector.append(-1);
+                }
                 emit sendDataToGUI(signalVector, timestampVector);
             }
+            //qDebug() << "signalVector :" << signalVector;
+            //qDebug() << "timestampVector :" << timestampVector;
+            //qDebug() << QString::number(timestampVector[2], 'f', 3); // The gps speed time, to check it is correct
+
             QFile file(filename);  // Log to text file
             if(file.open(QIODevice::WriteOnly | QIODevice::Append | QIODevice::Text)) {
                   QTextStream stream(&file);
@@ -285,6 +308,7 @@ void SerialPortThread::sendDataToGUISlot() {
 void SerialPortThread::selectPortFromComboBoxClick(QString PortDescriptionAndNumber) {
     if(TelemSerialPort != NULL) { // Close the port opened previously if it is open
         if(requestTimer->isActive() != true) { // If comms is not runnning
+            qDebug() << __FILE__ << __LINE__ << "Calling closeComms.";
             closeComms(TelemSerialPort);
         }
     }
@@ -304,12 +328,12 @@ void SerialPortThread::endCommsFromGUI(){
 }
 
 void SerialPortThread::telemRequestDataTimer() {
-    QThread::msleep(1500); // Serial port needs time to be setup before it works..
+    QThread::msleep(1500); // Serial port needs time to be setup before it works. Otherwise first few messages fail.
     requestTimer->start(REQUEST_TIME_MS);
     qDebug() << "Starting timer";
 }
 
-void SerialPortThread::updateTimestamp(int millis, int seconds, int minutes, int hours) {
+void SerialPortThread::updateRunTime(int millis, int seconds, int minutes, int hours) {
     milli = millis;
     second = seconds; // Global variable assignment. Shoud find a better way
     minute = minutes;

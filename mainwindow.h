@@ -30,13 +30,14 @@ public:
     void updateMainPower(int power);
     void updateMainRunningTime();
     void updateMainGPSStatus(int noOfSatellites);
+    void updateRadioStatus(int signalStrength);
 
-    void updateMainTab(double temp, double voltage, double speed, double power, int noOfSatellites);
+    void updateMainTab(double temp, double voltage, double speed, double power);
 
     // Graphs
     void clearData(QVector <QVector<double>> &plotVectors);
     void addPointsToGraphVector(QVector<QVector<double>> &graphVector, double x, double y);
-    void plotGraphs();
+    void plotSuspensionGraphs();
 
     // Suspension
     void frontLeftPlot();
@@ -77,8 +78,8 @@ private slots:
     void showMessageBox(int type);
 private:
     Ui::MainWindow *ui;
-    QVector <double> suspensionLeftFrontX, suspensionLeftFrontY; // Need to remove this its a terrible solution
 
+    QVector <double> usedForInitialisationOnly;
     //QVector of double QVectors, one for each suspension graph
     QVector <QVector<double>> suspensionLeftFront;
     QVector <QVector<double>> suspensionRightFront;
@@ -99,11 +100,13 @@ private:
 
     // Motor plot
     QVector <QVector<double>> motorDifferentialPower;
+
     // Steering plot
     QVector <QVector<double>> steeringInputPercent;
 
     // Running time
     QElapsedTimer runningTime;
+    bool stopClicked; // Used to reset menu bar
 
 signals:
     void startComms();

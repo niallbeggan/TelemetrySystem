@@ -1,10 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDesktopServices>
 
-#define ESTOP signalVector[0] // Makes the code read-able
-#define BMSTEMPERATURE signalVector[1]
-#define CARSPEED signalVector[2]
-#define BMSVOLTAGE signalVector[3]
+#define ESTOP signalVector[0] // Making a define of a variable that only exists in one
+#define BMSTEMPERATURE signalVector[1] // function is a terrible idea but it makes the packet so much
+#define CARSPEED signalVector[2] // easier to change, and makes the code a LOT more read-able. I might change the defines
+#define BMSVOLTAGE signalVector[3] // to just the location in the array later.
 #define BMSCURRENT signalVector[4]
 #define POWER_KW signalVector[5]
 #define LEFTMOTORVOLTAGE signalVector[6]
@@ -13,6 +14,8 @@
 #define RIGHTMOTORCURRENT signalVector[9]
 #define STEERINGINPUT signalVector[10]
 #define ACCELERATOR_PEDAL_POSITION signalVector[11]
+
+// Not on CAN Bus yet. Just used for demo
 #define BRAKE_PEDAL_POSITION signalVector[12]
 #define SUSPENSION_FRONT_LEFT signalVector[13]
 #define SUSPENSION_FRONT_RIGHT signalVector[14]
@@ -20,6 +23,7 @@
 #define SUSPENSION_REAR_RIGHT signalVector[16]
 #define NO_OF_SATELLITES signalVector[17]
 
+// All timestamps
 #define ESTOP_TIMESTAMP timestampVector[0]
 #define BMSTEMPERATURE_TIMESTAMP timestampVector[1]
 #define CARSPEED_TIMESTAMP timestampVector[2]
@@ -39,17 +43,20 @@
 #define SUSPENSION_REAR_RIGHT_TIMESTAMP timestampVector[16]
 #define NO_OF_SATELLITES_TIMESTAMP timestampVector[17]
 
-#define BATTERY_TEMP_LIMIT 60
+// Fixed values, likely to change at a later date
+#define BATTERY_TEMP_LIMIT 60 // A red line is graphed at this value on the battery temp graph
+#define MAX_VOLTAGE 75.6 // 17 cells. These are used to calculate % charge.
+#define MIN_VOLTAGE 51 // 3v/cell
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    SerialPortThread *thread = new SerialPortThread();
-    QThread* thread1 = new QThread;
-    thread->moveToThread(thread1);
-    thread1->start();
+    SerialPortThread *thread = new SerialPortThread(); // Create serial port object
+    QThread* thread1 = new QThread; // Create thread
+    thread->moveToThread(thread1); // Move object to the thread
+    thread1->start(); // Start the thread event loop
 
     MainWindow::setWindowTitle("TUD Formula Student Telemetry");
     //setWindowIcon(QIcon(":/TUD_Logo.PNG")); // Official, but shit looking logo
@@ -57,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     QCoreApplication::setApplicationName("TUD Formula Student Telemetry"); // For log files location
 
+    // Connects are used to send and receive data from the serial port thread
     connect(this, SIGNAL(startComms()), thread, SLOT(startComms()), Qt::QueuedConnection);
     connect(this, SIGNAL(updateFromComboBox(QString)), thread, SLOT(selectPortFromComboBoxClick(QString)), Qt::QueuedConnection);
     connect(this, SIGNAL(closeComms()), thread, SLOT(endCommsFromGUI()), Qt::QueuedConnection);
@@ -65,7 +73,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(thread, SIGNAL(scanSerialPorts()), this, SLOT(scanSerialPorts()), Qt::QueuedConnection);
     connect(thread, SIGNAL(showStartComms()), this, SLOT(showStartComms()), Qt::QueuedConnection);
     connect(thread, SIGNAL(showEndComms()), this, SLOT(showEndComms()), Qt::QueuedConnection);
-    connect(this, SIGNAL(timestamp(int, int, int, int)), thread, SLOT(updateTimestamp(int, int, int, int)), Qt::QueuedConnection);
+    connect(this, SIGNAL(timestamp(int, int, int, int)), thread, SLOT(updateRunTime(int, int, int, int)), Qt::QueuedConnection);
     connect(thread, SIGNAL(msgBoxSignal(int)), this, SLOT(showMessageBox(int)), Qt::QueuedConnection);
 
     // ui setup
@@ -77,11 +85,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->refreshPorts->setIconSize(QSize(28,28));
     ui->refreshPorts->setIcon(ButtonIcon);
 
+    // Create a red colour line, to be added to graphs later
     QPen redPen;
     redPen.setWidth(1);
     redPen.setColor("red");
-
-    ui->batteryTabStateOfChargeProgressBar->setValue(0);
 
     // Main tab Gauges setup
     ui->Main_Battery_Temp_Gauge->setMinValue(0);
@@ -120,17 +127,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->Main_Power_Gauge->setDigitCount(3);
 
     // Graphing suspension
-    suspensionLeftFront.append(suspensionLeftFrontX);
-    suspensionLeftFront.append(suspensionLeftFrontY);
-
-    suspensionRightFront.append(suspensionLeftFrontX);
-    suspensionRightFront.append(suspensionLeftFrontY);
-
-    suspensionLeftRear.append(suspensionLeftFrontX);
-    suspensionLeftRear.append(suspensionLeftFrontY);
-
-    suspensionRightRear.append(suspensionLeftFrontX);
-    suspensionRightRear.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty...
+    // Initialise all QVectors
+    suspensionLeftFront = QVector <QVector<double>> (2,usedForInitialisationOnly);
+    suspensionRightFront = QVector <QVector<double>> (2,usedForInitialisationOnly);
+    suspensionLeftRear = QVector <QVector<double>> (2,usedForInitialisationOnly);
+    suspensionRightRear = QVector <QVector<double>> (2,usedForInitialisationOnly);
 
     ui->suspensionTabFrontLeftGraph->addGraph();
     ui->suspensionTabFrontLeftGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -186,20 +187,15 @@ MainWindow::MainWindow(QWidget *parent)
 //    ui->frontLeftPlot->yAxis->setSubTickPen(QPen(Qt::white));
 
     // Battery tab settings
+
+    ui->batteryTabStateOfChargeProgressBar->setValue(0);
     highestCurrent = 0; // Settings that should get overwritten immediately
     lowestVoltage = 100;
 
-    batteryTemp.append(suspensionLeftFrontX);
-    batteryTemp.append(suspensionLeftFrontY);// i need to get rid of all these, they are empty... but need to initialise graph vector somehow
-
-    batteryTempLimit.append(suspensionLeftFrontX);
-    batteryTempLimit.append(suspensionLeftFrontY);
-
-    batteryVoltage.append(suspensionLeftFrontX);
-    batteryVoltage.append(suspensionLeftFrontY);
-
-    batteryCurrent.append(suspensionLeftFrontX);
-    batteryCurrent.append(suspensionLeftFrontY);
+    batteryTemp = QVector <QVector<double>> (2,usedForInitialisationOnly);
+    batteryTempLimit = QVector <QVector<double>> (2,usedForInitialisationOnly);
+    batteryVoltage  = QVector <QVector<double>> (2,usedForInitialisationOnly);
+    batteryCurrent = QVector <QVector<double>> (2,usedForInitialisationOnly);
 
     ui->batteryTabTempGraph->addGraph();
     ui->batteryTabTempGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -237,15 +233,13 @@ MainWindow::MainWindow(QWidget *parent)
     ui->batteryTabCurrentGraph->xAxis->setLabel("Timestamp (seconds of the day)");
 
     // Pedal positions tab
-    brakePedal.append(suspensionLeftFrontX);
-    brakePedal.append(suspensionLeftFrontY);
+    brakePedal = QVector <QVector<double>> (2,usedForInitialisationOnly);
 
     ui->pedalTabGraph->addGraph();
     ui->pedalTabGraph->graph(0)->setScatterStyle(QCPScatterStyle::ssNone);
     ui->pedalTabGraph->graph(0)->setLineStyle(QCPGraph::lsLine);
 
-    acceleratorPedal.append(suspensionLeftFrontX);
-    acceleratorPedal.append(suspensionLeftFrontY);
+    acceleratorPedal = QVector <QVector<double>> (2,usedForInitialisationOnly);
 
     ui->pedalTabGraph->addGraph();
     ui->pedalTabGraph->graph(1)->setScatterStyle(QCPScatterStyle::ssNone);
@@ -265,8 +259,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->pedalTabGraph->legend->setVisible(true);
 
     // Motor differential graph
-    motorDifferentialPower.append(suspensionLeftFrontX);
-    motorDifferentialPower.append(suspensionLeftFrontY);
+    motorDifferentialPower = QVector <QVector<double>> (2,usedForInitialisationOnly);
 
     ui->motorDiffPower->addGraph();
     ui->motorDiffPower->graph(0)->setName("Differential motor power");
@@ -284,8 +277,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->motorDiffPower->yAxis->setLabel("Timestamp (seconds of the day)");
 
     // Steering Input graph
-    steeringInputPercent.append(suspensionLeftFrontX);
-    steeringInputPercent.append(suspensionLeftFrontY);
+    steeringInputPercent = QVector <QVector<double>> (2,usedForInitialisationOnly);
 
     ui->steeringInputGraph->addGraph();
     ui->steeringInputGraph->graph(0)->setPen(redPen);
@@ -308,6 +300,7 @@ MainWindow::~MainWindow() {
     delete ui;
 }
 
+
 void MainWindow::showMessageBox(int type) {
     if(type == 1) {
         QMessageBox msgWarning;
@@ -323,36 +316,42 @@ void MainWindow::showMessageBox(int type) {
         msgCritical.setWindowTitle("Critical!");
         msgCritical.exec();
     }
-    //else
-        //NOP yet
 }
 
 // ********************** Updating all tabs *************************** //
 
 void MainWindow::updateGUI(QVector <double> signalVector, QVector <double> timestampVector) {
     //QApplication::processEvents(); // Careful with this.
-    if(signalVector.length() > 17) {
-        //qDebug() << signalVector;
-        //qDebug() << timestampVector;
-        //qDebug() << "timestampSeconds" << QString::number(timestampVector[0], 'g', 12);
 
+    // Battery
+    updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
+
+    // Main Tab
+    updateMainTab(BMSTEMPERATURE, BMSVOLTAGE, CARSPEED, POWER_KW);
+
+    if(timestampVector.contains(-1) == true) {
+        // Show user radio has no signal
+        updateRadioStatus(0);
+        updateMainGPSStatus(0);
+        updateMainTab(0, 0, 0, 0);
+    }
+
+    if(timestampVector.contains(-1) != true) { // Only update graphs if message received
+        updateRadioStatus(1);
+        updateMainGPSStatus(NO_OF_SATELLITES);
         // Suspension
         addPointsToGraphVector(suspensionLeftFront, SUSPENSION_FRONT_LEFT_TIMESTAMP, SUSPENSION_FRONT_LEFT);
         addPointsToGraphVector(suspensionRightFront, SUSPENSION_FRONT_RIGHT_TIMESTAMP, SUSPENSION_FRONT_RIGHT);
         addPointsToGraphVector(suspensionLeftRear, SUSPENSION_REAR_LEFT_TIMESTAMP, SUSPENSION_REAR_LEFT);
         addPointsToGraphVector(suspensionRightRear, SUSPENSION_REAR_RIGHT_TIMESTAMP, SUSPENSION_REAR_RIGHT);
-        plotGraphs();
+        plotSuspensionGraphs();
 
-        // Battery
-        updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
+
         addPointsToGraphVector(batteryTemp, BMSTEMPERATURE_TIMESTAMP, BMSTEMPERATURE);
         addPointsToGraphVector(batteryTempLimit, BMSTEMPERATURE_TIMESTAMP, BATTERY_TEMP_LIMIT); // Might remove,red limit line
         addPointsToGraphVector(batteryCurrent, BMSCURRENT_TIMESTAMP, BMSCURRENT);
         addPointsToGraphVector(batteryVoltage, BMSVOLTAGE_TIMESTAMP, BMSVOLTAGE);
         plotBatteryGraphs();
-
-        // Main Tab
-        updateMainTab(BMSTEMPERATURE, BMSVOLTAGE, CARSPEED, POWER_KW, NO_OF_SATELLITES);
 
         // Pedal positions tab
         updatePedalTab(BRAKE_PEDAL_POSITION, BRAKE_PEDAL_POSITION_TIMESTAMP , ACCELERATOR_PEDAL_POSITION, ACCELERATOR_PEDAL_POSITION_TIMESTAMP);
@@ -383,7 +382,7 @@ void MainWindow::on_refreshPorts_clicked() {
     QApplication::processEvents();
     scanSerialPorts();
     ui->comboBoxSerialPorts->setCurrentIndex(0);
-    QThread::msleep(80);
+    QThread::msleep(150);
     ui->refreshPorts->setIcon(ButtonIcon);
 }
 
@@ -400,6 +399,8 @@ void MainWindow::showEndComms() {
 void MainWindow::on_endComms_clicked() { // Tells the serial port thread to stop the timer
     emit closeComms();
     ui->gpsStatusLabel->setText("GPS STATUS:"); // This could be added to a function
+    ui->radioStatusLabel->setText("RADIO STATUS:");
+    stopClicked = true;
     clearComboBox();
 }
 
@@ -418,8 +419,8 @@ void MainWindow::on_startComms_clicked() { // Tells the serial port thread to st
     clearData(steeringInputPercent);
     highestCurrent = 0;
     lowestVoltage = 100;
-
     emit startComms();
+    stopClicked = false;
     runningTime.start();
 }
 
@@ -452,7 +453,7 @@ void MainWindow::updateMainRunningTime() {
     millis = millis % 1000;
     hundredths = round(millis/10);
 
-    ui->minutesLcdNumber->display(hours);
+    ui->hoursLcdNumber->display(hours);
     ui->minutesLcdNumber->display(mins);
     ui->secondsLcdNumber->display(secs);
     ui->hundredthsSecondsLcdNumber->display(hundredths);
@@ -461,28 +462,38 @@ void MainWindow::updateMainRunningTime() {
 }
 
 void MainWindow::updateMainGPSStatus(int noOfSatellites) {
-    if(noOfSatellites < 4)
-        ui->gpsStatusLabel->setText("GPS STATUS: CONNECTING");
-    if(noOfSatellites == 4)
-        ui->gpsStatusLabel->setText("GPS STATUS: WEAK SIGNAL");
-    if(noOfSatellites == 5)
-        ui->gpsStatusLabel->setText("GPS STATUS: OK SIGNAL");
-    if(noOfSatellites > 5)
-        ui->gpsStatusLabel->setText("GPS STATUS: GOOD SIGNAL");
+    if(stopClicked != true) {
+        if(noOfSatellites < 4)
+            ui->gpsStatusLabel->setText("GPS STATUS: CONNECTING");
+        if(noOfSatellites == 4)
+            ui->gpsStatusLabel->setText("GPS STATUS: WEAK SIGNAL");
+        if(noOfSatellites == 5)
+            ui->gpsStatusLabel->setText("GPS STATUS: OK SIGNAL");
+        if(noOfSatellites > 5)
+            ui->gpsStatusLabel->setText("GPS STATUS: GOOD SIGNAL");
+    }
+}
+
+void MainWindow::updateRadioStatus(int signalStrength) {
+    if(stopClicked != true) {
+        if(signalStrength == 0)
+            ui->radioStatusLabel->setText("RADIO STATUS: NO SIGNAL");
+        if(signalStrength == 1)
+            ui->radioStatusLabel->setText("RADIO STATUS: GOOD SIGNAL");
+    }
 }
 
 void MainWindow::updateMainPower(int power) {
   ui->Main_Power_Gauge->setValue(power);
 }
 
-void MainWindow::updateMainTab(double temp, double voltage, double speed, double power,int noOfSatellites) { // Cant display decimal places
+void MainWindow::updateMainTab(double temp, double voltage, double speed, double power) { // Cant display decimal places
     updateMainTemp(temp);
     updateMainVoltage(voltage);
     updateMainSpeed(speed);
     updateMainRunningTime();
     updateMainPower(power);
     updateMainRunningTime();
-    updateMainGPSStatus(noOfSatellites);
 }
 
 //********************** Suspension functions **********************//
@@ -496,7 +507,7 @@ void MainWindow::addPointsToGraphVector(QVector<QVector<double> > &graphVector, 
     }
 }
 
-void MainWindow::plotGraphs() {
+void MainWindow::plotSuspensionGraphs() {
    frontLeftPlot();
    rearLeftPlot();
    frontRightPlot();
@@ -585,11 +596,8 @@ void MainWindow::rearRightPlot() {
 
 //*********************************Battery tab functions *************************//
 
-void MainWindow::updateBatteryTab(double voltage, double current, double temp) {
-
-    double maxVoltage = 75.6; // 17 cellS
-    double minVoltage = 51; // 3v/cell
-    double stateOfCharge = 100*(voltage-minVoltage)/(maxVoltage-minVoltage);
+void MainWindow::updateBatteryTab(double voltage, double current, double temp) {    
+    double stateOfCharge = 100*(voltage-MIN_VOLTAGE)/(MAX_VOLTAGE-MIN_VOLTAGE);
     if((voltage < lowestVoltage) && (voltage > 0))
         lowestVoltage = voltage;
     if(current > highestCurrent)
