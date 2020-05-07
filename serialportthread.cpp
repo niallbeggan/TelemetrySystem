@@ -82,8 +82,8 @@ float SerialPortThread::take8ByteArrayReturnSignal(QByteArray messageArray) {
     float signalValue = -100; // Could be neg or pos
 
     // Get signal
-    int bigByte = static_cast < char > (messageArray[0]);                // This carries the int's sign
-    int smallByte = static_cast < unsigned char > (messageArray[1]);   // this doesnt
+    int bigByte = static_cast < char > (messageArray[1]);                // This carries the int's sign
+    int smallByte = static_cast < unsigned char > (messageArray[0]);   // this doesnt
     if(bigByte < 0)                                               // If neg change sign of small byte
         signalValue = (bigByte * 256) - smallByte;                // Add (-small) to big to get total neg value
     signalValue = (bigByte * 256) + smallByte;                    // If positive, add to get total pos value
@@ -101,8 +101,8 @@ double SerialPortThread::take8ByteArrayReturnTimestamp(QByteArray messageArray) 
         timestampSeconds += static_cast < unsigned char > (messageArray[z]) <<(x*8);
         x = x + 1;
     }
-    int bigByte = static_cast < char > (messageArray[6]);             // this carries the int's sign
-    int smallByte = static_cast < unsigned char > (messageArray[7]); // this doesnt
+    int bigByte = static_cast < char > (messageArray[7]);             // this carries the int's sign
+    int smallByte = static_cast < unsigned char > (messageArray[6]); // this doesnt
     timestampMillis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
     timestampMillis = (timestampMillis/1000); // Divide by 1000 to convert to seconds
     timestamp = timestampSeconds + timestampMillis;
