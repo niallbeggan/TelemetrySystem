@@ -92,15 +92,18 @@ float SerialPortThread::take8ByteArrayReturnSignal(QByteArray messageArray) {
 }
 
 double SerialPortThread::take8ByteArrayReturnTimestamp(QByteArray messageArray) {
-    double timestampSeconds = -1; // Time of day in seconds
+    double timestampSeconds = 0; // Time of day in seconds
     double timestampMillis = 0; // Milliseconds between seconds
-    double timestamp = -1; // -1 is a QT fail value. 0 is arduino fail value
+    double timestamp = 0;
     // get timestamp
     int x = 0;
-    for (int z = 2; z < (6); z = z + 1) {
+    for (int z = 2; z < 6; z = z + 1) {
         timestampSeconds += static_cast < unsigned char > (messageArray[z]) <<(x*8);
         x = x + 1;
+        qDebug() << "in loop: " << x << "... " <<timestampSeconds;
+        qDebug() << "in loop: " << x << "... " <<messageArray[z];
     }
+    qDebug() << timestampSeconds;
     int bigByte = static_cast < char > (messageArray[6]);             // this carries the int's sign
     int smallByte = static_cast < unsigned char > (messageArray[7]); // this doesnt
     timestampMillis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
@@ -242,7 +245,7 @@ void SerialPortThread::sendDataToGUISlot() {
             datas = TelemSerialPort->readAll(); // Need to emit an empty signal here if dont get full msg
             float signal = -1;
             double timestamp = -1;
-            // qDebug() << "datas.size()" << datas.size();
+            qDebug() << "datas.size()" << datas.size();
             if(datas.size() == PACKET_SIZE_BYTES) {
                 for(int i = 0; i < datas.size() - 7; i = i + 8) {
                     QByteArray CAN_Message = datas.mid(i, 8);
@@ -279,8 +282,8 @@ void SerialPortThread::sendDataToGUISlot() {
                 }
                 emit sendDataToGUI(signalVector, timestampVector);
             }
-            //qDebug() << "signalVector :" << signalVector;
-            //qDebug() << "timestampVector :" << timestampVector;
+            qDebug() << "signalVector :" << signalVector;
+            qDebug() << "timestampVector :" << timestampVector;
             //qDebug() << QString::number(timestampVector[2], 'f', 3); // The gps speed time, to check it is correct
 
             QFile file(filename);  // Log to text file
