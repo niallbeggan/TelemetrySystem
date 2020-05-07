@@ -100,10 +100,7 @@ double SerialPortThread::take8ByteArrayReturnTimestamp(QByteArray messageArray) 
     for (int z = 2; z < 6; z = z + 1) {
         timestampSeconds += static_cast < unsigned char > (messageArray[z]) <<(x*8);
         x = x + 1;
-        qDebug() << "in loop: " << x << "... " <<timestampSeconds;
-        qDebug() << "in loop: " << x << "... " <<messageArray[z];
     }
-    qDebug() << timestampSeconds;
     int bigByte = static_cast < char > (messageArray[6]);             // this carries the int's sign
     int smallByte = static_cast < unsigned char > (messageArray[7]); // this doesnt
     timestampMillis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
