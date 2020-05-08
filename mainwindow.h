@@ -31,6 +31,8 @@ public:
     void updateMainRunningTime();
     void updateMainGPSStatus(int noOfSatellites);
     void updateRadioStatus(int signalStrength);
+    void updateCANStatus(int CANMessageReceived);
+    void updateTempStatus(float temp);
 
     void updateMainTab(double temp, double voltage, double speed, double power);
 

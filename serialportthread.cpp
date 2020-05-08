@@ -101,6 +101,8 @@ double SerialPortThread::take8ByteArrayReturnTimestamp(QByteArray messageArray) 
         timestampSeconds += static_cast < unsigned char > (messageArray[z]) <<(x*8);
         x = x + 1;
     }
+    timestampSeconds += static_cast < char > (messageArray[5]) <<(x*8);
+
     int bigByte = static_cast < char > (messageArray[7]);             // this carries the int's sign
     int smallByte = static_cast < unsigned char > (messageArray[6]); // this doesnt
     timestampMillis = (bigByte * 256) + smallByte;                   // Add small to big to get total value
@@ -259,8 +261,8 @@ void SerialPortThread::sendDataToGUISlot() {
 
                 //qDebug() << "Time of day from GPS :" <<  (UTC_time_seconds/3600) <<":" << ((UTC_time_seconds%3600)/60) << ":" << UTC_time_seconds%60;
 
-                //qDebug() << "signalVector :" << signalVector;
-                //qDebug() << "timestampVector :" << timestampVector;
+                //qDebug() << "signalVector :" << signalVector; //TMP
+                //qDebug() << "timestampVector :" << timestampVector; //TMP
 
                 // Send to GUI/Main thread section
                 if(signalVector.length() > 17) // Full msg received

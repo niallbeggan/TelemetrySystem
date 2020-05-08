@@ -332,25 +332,44 @@ void MainWindow::updateGUI(QVector <double> signalVector, QVector <double> times
     if(timestampVector.contains(-1) == true) {
         // Show user radio has no signal
         updateRadioStatus(0);
-        updateMainGPSStatus(0);
         updateMainTab(0, 0, 0, 0);
     }
 
+    QVector <double> VectorOfZerosToCheckCANStatus(18, 0); // If signal vector is all zeros, no signals received from CAN bus.
+
     if(timestampVector.contains(-1) != true) { // Only update graphs if message received
-        updateRadioStatus(1);
+        updateRadioStatus(1); // Radio is ok
         updateMainGPSStatus(NO_OF_SATELLITES);
+        updateTempStatus(BMSTEMPERATURE);
+        if(signalVector == VectorOfZerosToCheckCANStatus)
+            updateCANStatus(0); // If not all signals are zero, the telemetry CAN node is still ok
+        else
+            updateCANStatus(1); // If all signals are zero, the CAN node has failed
         // Suspension
-        addPointsToGraphVector(suspensionLeftFront, SUSPENSION_FRONT_LEFT_TIMESTAMP, SUSPENSION_FRONT_LEFT);
-        addPointsToGraphVector(suspensionRightFront, SUSPENSION_FRONT_RIGHT_TIMESTAMP, SUSPENSION_FRONT_RIGHT);
-        addPointsToGraphVector(suspensionLeftRear, SUSPENSION_REAR_LEFT_TIMESTAMP, SUSPENSION_REAR_LEFT);
-        addPointsToGraphVector(suspensionRightRear, SUSPENSION_REAR_RIGHT_TIMESTAMP, SUSPENSION_REAR_RIGHT);
+        if(SUSPENSION_FRONT_LEFT_TIMESTAMP != 0) {
+            addPointsToGraphVector(suspensionLeftFront, SUSPENSION_FRONT_LEFT_TIMESTAMP, SUSPENSION_FRONT_LEFT);
+        }
+        if(SUSPENSION_FRONT_RIGHT_TIMESTAMP != 0) {
+            addPointsToGraphVector(suspensionRightFront, SUSPENSION_FRONT_RIGHT_TIMESTAMP, SUSPENSION_FRONT_RIGHT);
+        }
+        if(SUSPENSION_REAR_LEFT_TIMESTAMP != 0) {
+            addPointsToGraphVector(suspensionLeftRear, SUSPENSION_REAR_LEFT_TIMESTAMP, SUSPENSION_REAR_LEFT);
+        }
+        if(SUSPENSION_REAR_RIGHT_TIMESTAMP != 0) {
+            addPointsToGraphVector(suspensionRightRear, SUSPENSION_REAR_RIGHT_TIMESTAMP, SUSPENSION_REAR_RIGHT);
+        }
         plotSuspensionGraphs();
 
-
-        addPointsToGraphVector(batteryTemp, BMSTEMPERATURE_TIMESTAMP, BMSTEMPERATURE);
-        addPointsToGraphVector(batteryTempLimit, BMSTEMPERATURE_TIMESTAMP, BATTERY_TEMP_LIMIT); // Might remove,red limit line
-        addPointsToGraphVector(batteryCurrent, BMSCURRENT_TIMESTAMP, BMSCURRENT);
-        addPointsToGraphVector(batteryVoltage, BMSVOLTAGE_TIMESTAMP, BMSVOLTAGE);
+        if(BMSTEMPERATURE_TIMESTAMP != 0) {
+            addPointsToGraphVector(batteryTemp, BMSTEMPERATURE_TIMESTAMP, BMSTEMPERATURE);
+            addPointsToGraphVector(batteryTempLimit, BMSTEMPERATURE_TIMESTAMP, BATTERY_TEMP_LIMIT); // Might remove,red limit line
+        }
+        if(BMSCURRENT_TIMESTAMP != 0) {
+            addPointsToGraphVector(batteryCurrent, BMSCURRENT_TIMESTAMP, BMSCURRENT);
+        }
+        if(BMSVOLTAGE_TIMESTAMP != 0) {
+            addPointsToGraphVector(batteryVoltage, BMSVOLTAGE_TIMESTAMP, BMSVOLTAGE);
+        }
         plotBatteryGraphs();
 
         // Pedal positions tab
@@ -463,24 +482,58 @@ void MainWindow::updateMainRunningTime() {
 
 void MainWindow::updateMainGPSStatus(int noOfSatellites) {
     if(stopClicked != true) {
-        if(noOfSatellites < 4)
+        if(noOfSatellites < 4) {
             ui->gpsStatusLabel->setText("GPS STATUS: CONNECTING");
-        if(noOfSatellites == 4)
+            ui->gpsStatusLabel->setStyleSheet("QLabel { background-color : red; color : white; }");
+        }
+        if(noOfSatellites == 4) {
             ui->gpsStatusLabel->setText("GPS STATUS: WEAK SIGNAL");
-        if(noOfSatellites == 5)
+            ui->gpsStatusLabel->setStyleSheet("QLabel { background-color: rgb(200, 196, 58);; color : white; }");
+        }
+        if(noOfSatellites == 5) {
             ui->gpsStatusLabel->setText("GPS STATUS: OK SIGNAL");
-        if(noOfSatellites > 5)
+            ui->gpsStatusLabel->setStyleSheet("QLabel {background-color: rgb(0, 0, 0); color : white; }");
+        }
+        if(noOfSatellites > 5) {
             ui->gpsStatusLabel->setText("GPS STATUS: GOOD SIGNAL");
+            ui->gpsStatusLabel->setStyleSheet("QLabel {background-color: rgb(0, 0, 0); color : white; }");
+        }
     }
 }
 
 void MainWindow::updateRadioStatus(int signalStrength) {
     if(stopClicked != true) {
-        if(signalStrength == 0)
-            ui->radioStatusLabel->setText("RADIO STATUS: NO SIGNAL");
-        if(signalStrength == 1)
+        if(signalStrength == 0) {
+            ui->radioStatusLabel->setText("RADIO STATUS: NO SIGNAL");;
+            ui->radioStatusLabel->setStyleSheet("QLabel { background-color : red; color : white; }");
+        }
+        if(signalStrength == 1) {
             ui->radioStatusLabel->setText("RADIO STATUS: GOOD SIGNAL");
+            ui->radioStatusLabel->setStyleSheet("QLabel {background-color: rgb(0, 0, 0); color : white; }");
+        }
     }
+}
+
+void MainWindow::updateCANStatus(int CANMessageReceived) {
+    if(CANMessageReceived == 1) {
+        ui->CanAlarmLabel->setText("CAN NODE: OK");
+        ui->CanAlarmLabel->setStyleSheet("QLabel {background-color: rgb(0, 0, 0); color : white; }");
+    }
+    if(CANMessageReceived == 0) {
+        ui->CanAlarmLabel->setText("CAN NODE: FAILURE");
+        ui->CanAlarmLabel->setStyleSheet("QLabel {background-color: red; color : white; }");
+    }
+
+}
+
+void MainWindow::updateTempStatus(float temp) {
+    ui->tempAlarmLabel->setText("TEMP: " + QString::number(temp, 'f', 1));
+    if(temp < 40)
+        ui->tempAlarmLabel->setStyleSheet("QLabel {background-color: rgb(0, 0, 0); color : white; }");
+    if((temp >= 40) && (temp < 59))
+        ui->tempAlarmLabel->setStyleSheet("QLabel {background-color: rgb(255, 165, 0); color : white; }");
+    if(temp >= 59)
+        ui->tempAlarmLabel->setStyleSheet("QLabel {background-color: red; color : white; }");
 }
 
 void MainWindow::updateMainPower(int power) {
@@ -677,8 +730,12 @@ void MainWindow::plotBatteryGraphs() {
 // ********************** Pedal functions *************************** //
 
 void MainWindow::updatePedalTab(double brake, double brakeTimestamp, double accelerator, double acceleratorTimestamp) {
-    addPointsToGraphVector(brakePedal, brakeTimestamp, brake);
-    addPointsToGraphVector(acceleratorPedal, acceleratorTimestamp, accelerator); //remove this
+    if(brakeTimestamp != 0) {
+        addPointsToGraphVector(brakePedal, brakeTimestamp, brake);
+    }
+    if(acceleratorTimestamp != 0) {
+        addPointsToGraphVector(acceleratorPedal, acceleratorTimestamp, accelerator); //remove this
+    }
     plotPedalGraph();
 }
 
@@ -730,8 +787,12 @@ void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftM
         steeringInput = 0;
     }
     double differentialPower = rightMotorPower - leftMotorPower; // If left power is bigger, result is neg, plot more left power on left side of graph.
-    addPointsToGraphVector(motorDifferentialPower, differentialPower, leftMotorCurrentTimestamp); // differentialPower TIMESTAMPS ASSUME TO BE THE SAME!!!
-    addPointsToGraphVector(steeringInputPercent, steeringInput, steeringInputTimestamp);
+    if((leftMotorCurrentTimestamp != -2) & (rightMotorCurrentTimestamp != 0)) {
+        addPointsToGraphVector(motorDifferentialPower, differentialPower, leftMotorCurrentTimestamp); // differentialPower TIMESTAMPS ASSUME TO BE THE SAME!!!
+    }
+    if(steeringInputTimestamp != 0) {
+        addPointsToGraphVector(steeringInputPercent, steeringInput, steeringInputTimestamp);
+    }
     motorDifferentialPlot();
     steeringInputPlot();
 }
