@@ -322,7 +322,6 @@ void MainWindow::showMessageBox(int type) {
 
 void MainWindow::updateGUI(QVector <double> signalVector, QVector <double> timestampVector) {
     //QApplication::processEvents(); // Careful with this.
-
     // Battery
     updateBatteryTab(BMSVOLTAGE, BMSCURRENT, BMSTEMPERATURE); // volt, current, tmp
 
@@ -787,14 +786,14 @@ void MainWindow::updateMotorAndSteeringTab(double leftMotorVoltage, double leftM
         steeringInput = 0;
     }
     double differentialPower = rightMotorPower - leftMotorPower; // If left power is bigger, result is neg, plot more left power on left side of graph.
-    if((leftMotorCurrentTimestamp != -2) & (rightMotorCurrentTimestamp != 0)) {
+    if((leftMotorCurrentTimestamp != 0) & (rightMotorCurrentTimestamp != 0)) {
         addPointsToGraphVector(motorDifferentialPower, differentialPower, leftMotorCurrentTimestamp); // differentialPower TIMESTAMPS ASSUME TO BE THE SAME!!!
+        motorDifferentialPlot();
     }
     if(steeringInputTimestamp != 0) {
         addPointsToGraphVector(steeringInputPercent, steeringInput, steeringInputTimestamp);
+        steeringInputPlot();
     }
-    motorDifferentialPlot();
-    steeringInputPlot();
 }
 
 void MainWindow::motorDifferentialPlot() {
@@ -802,7 +801,6 @@ void MainWindow::motorDifferentialPlot() {
 
     int pxy = ui->motorDiffPower->xAxis->coordToPixel(0);
     ui->motorDiffPower->yAxis->setOffset(ui->motorDiffPower->axisRect()->left()-pxy); // Internet code
-
     ui->motorDiffPower->replot();  
 
     double startOfYAxis = 0;

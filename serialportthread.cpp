@@ -80,7 +80,6 @@ SerialPortThread::~SerialPortThread() {
 float SerialPortThread::take8ByteArrayReturnSignal(QByteArray messageArray) {
     // declare variables
     float signalValue = -100; // Could be neg or pos
-
     // Get signal
     int bigByte = static_cast < char > (messageArray[1]);                // This carries the int's sign
     int smallByte = static_cast < unsigned char > (messageArray[0]);   // this doesnt
