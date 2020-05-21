@@ -871,7 +871,7 @@ QTabBar::tab {
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideNone</enum>
@@ -881,7 +881,7 @@ QTabBar::tab {
       </property>
       <widget class="QWidget" name="mainTab">
        <attribute name="title">
-        <string>Setup</string>
+        <string>Main</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">

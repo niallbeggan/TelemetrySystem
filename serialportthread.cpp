@@ -1,3 +1,20 @@
+/***************************************************************************
+**                                                                        **
+**  This program is free software: you can redistribute it and/or modify  **
+**  it under the terms of the MIT License                                 **
+**                                                                        **
+**  This program is distributed in the hope that it will be useful,       **
+**  but WITHOUT ANY WARRANTY; without even the implied warranty of        **
+**  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                  **
+**                                                                        **
+**                                                                        **
+****************************************************************************
+**           Author: Niall Beggan                                         **
+**           Contact: niallbeggan@gmail.com                               **
+**           Date: 20.5.2020                                              **
+**           Version: 1.0.0                                               **
+****************************************************************************/
+
 #include "serialportthread.h"
 #include <QDesktopServices>
 #include <QStandardPaths>
