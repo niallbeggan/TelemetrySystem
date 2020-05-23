@@ -51,7 +51,7 @@ private slots:
 
 private:
     int closeComms(QSerialPort* &port);
-    QSerialPort *TelemSerialPort;
+    QSerialPort * TelemSerialPort;
     QString portNumber;
     QTimer * requestTimer;
     QString filename = "Data.txt";
